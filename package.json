@@ -1,0 +1,24 @@
+{
+  "name": "git-for-docs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "diff": "^7.0.0",
+    "express": "^4.21.2",
+    "jsdom": "^25.0.1",
+    "mongoose": "^8.8.4",
+    "nodemon": "^3.1.7",
+    "slugify": "^1.6.6",
+    "xmldom": "^0.6.0"
+  }
+}
