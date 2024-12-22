@@ -69,3 +69,12 @@ export const getParentContent = async (slug) => {
 
   return response.data;
 };
+
+export const fetchDocumentTree = async () => {
+  const response = await axios.get(`${apiUrl}/document/tree`);
+  console.log(response)
+  if (response.statusText!="OK") {
+    throw new Error('Failed to fetch document tree');
+  }
+  return response.data;
+};

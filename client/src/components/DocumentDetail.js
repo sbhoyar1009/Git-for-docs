@@ -22,6 +22,7 @@ const DocumentDetail = () => {
   const [showDifferences, setShowDifferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [parent,setParent] = useState(null);
 
   useEffect(() => {
     console.log(slug)
@@ -39,6 +40,7 @@ const DocumentDetail = () => {
         setDocument(documentData);
         setTitle(documentData.title);
         setContent(documentData.content);
+        setParent(documentData?.parent)
       } catch (error) {
         alert("Document not found");
       }
@@ -108,6 +110,7 @@ const DocumentDetail = () => {
               placeholder="Enter title"
               style={{ fontSize: "24px", width: "100%", marginBottom: "20px" }}
             />
+            <div>{parent?parent:"This is parent doc"}</div>
             <TextEditor text={content} onChange={setContent} />
 
             <div style={{ marginTop: "20px" }}>
@@ -142,6 +145,7 @@ const DocumentDetail = () => {
                 ))}
               </div>
             )}
+
           </div>
         </>
       ) : (

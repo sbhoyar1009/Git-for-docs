@@ -7,14 +7,15 @@ const {
   updateTextBySlug,
   branchDocument,
   getDiffBetweenParentAndChild,
-  getParentContent
+  getParentContent,
+  buildHierarchyTree
 } = require("../controllers/textController");
 
 const router = express.Router();
 
 // Route to get all documents
 router.get("/", getAllTexts);
-
+router.get("/document/tree",buildHierarchyTree)
 // Route to get a specific document by its slug
 router.get("/:slug", getTextBySlug);
 
@@ -31,5 +32,6 @@ router.post("/:slug/branch", branchDocument);
 router.get("/:slug/differences", getDiffBetweenParentAndChild);
 
 router.get("/documents/:slug/parent-content", getParentContent);
+
 
 module.exports = router;

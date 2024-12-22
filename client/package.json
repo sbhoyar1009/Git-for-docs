@@ -9,6 +9,7 @@
     "axios": "^1.7.9",
     "quill": "^2.0.3",
     "react": "^19.0.0",
+    "react-d3-tree": "^3.6.2",
     "react-dom": "^19.0.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.0.2",

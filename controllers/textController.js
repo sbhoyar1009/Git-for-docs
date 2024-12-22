@@ -1,7 +1,6 @@
-
 const Text = require("../models/text");
-const { diffWords } = require('diff'); // Import the diff library
-const { JSDOM } = require('jsdom');
+const { diffWords } = require("diff"); // Import the diff library
+const { JSDOM } = require("jsdom");
 
 // Controller to get the current text content
 const getText = async (req, res) => {
@@ -63,10 +62,11 @@ const saveText = async (req, res) => {
     await newText.save();
     res.status(201).json(newText);
   } catch (error) {
-    res.status(500).json({ message: 'Error saving document', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error saving document", error: error.message });
   }
 };
-
 
 const updateTextBySlug = async (req, res) => {
   const { slug } = req.params;
@@ -114,51 +114,55 @@ const branchDocument = async (req, res) => {
   }
 };
 const splitIntoParagraphs = (text) => {
-  return text.split('\n').filter((para) => para.trim() !== '');
+  return text.split("\n").filter((para) => para.trim() !== "");
 };
 
 function parseContent(content) {
   // Using jsdom to simulate DOMParser
   const dom = new JSDOM(content);
   const doc = dom.window.document;
-  const paragraphs = Array.from(doc.querySelectorAll('p'));
-  return paragraphs.map(p => p.innerHTML.trim()); // Extract inner HTML of each paragraph
+  const paragraphs = Array.from(doc.querySelectorAll("p"));
+  return paragraphs.map((p) => p.innerHTML.trim()); // Extract inner HTML of each paragraph
 }
-
 
 // Modified endpoint to return paragraph-level differences
 const getDiffBetweenParentAndChild = async (req, res) => {
   const { slug } = req.params;
   try {
-    const childDoc = await Text.findOne({ slug }).populate('parent');
+    const childDoc = await Text.findOne({ slug }).populate("parent");
     if (!childDoc || !childDoc.parent) {
-      return res.status(404).json({ message: 'Parent or child document not found' });
+      return res
+        .status(404)
+        .json({ message: "Parent or child document not found" });
     }
 
     const parentDoc = await Text.findById(childDoc.parent);
 
-
     const parentParagraphs = parseContent(parentDoc.content);
     const childParagraphs = parseContent(childDoc.content);
-      console.log(parentParagraphs)
+    console.log(parentParagraphs);
     // Diff paragraphs
-    const diffResult = parentParagraphs.map((parentPara, index) => {
-      const childPara = childParagraphs[index] || ""; // In case child content has less paragraphs
-  
-      if (parentPara !== childPara) {
-        return {
-          index,
-          parent: parentPara,
-          child: childPara,
-          difference: `Changed from: "${parentPara}" to: "${childPara}"`
-        };
-      }
-      return null;
-    }).filter(diff => diff !== null);
-  
-    res.status(200).json({diffResult });
+    const diffResult = parentParagraphs
+      .map((parentPara, index) => {
+        const childPara = childParagraphs[index] || ""; // In case child content has less paragraphs
+
+        if (parentPara !== childPara) {
+          return {
+            index,
+            parent: parentPara,
+            child: childPara,
+            difference: `Changed from: "${parentPara}" to: "${childPara}"`,
+          };
+        }
+        return null;
+      })
+      .filter((diff) => diff !== null);
+
+    res.status(200).json({ diffResult });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch differences', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch differences", error: err.message });
   }
 };
 
@@ -166,19 +170,46 @@ const getDiffBetweenParentAndChild = async (req, res) => {
 const getParentContent = async (req, res) => {
   const { slug } = req.params;
   try {
-    const document = await Text.findOne({ slug }).populate('parent'); // Populate parent
+    const document = await Text.findOne({ slug }).populate("parent"); // Populate parent
     if (!document || !document.parent) {
-      return res.status(404).json({ message: 'Parent document not found' });
+      return res.status(404).json({ message: "Parent document not found" });
     }
 
     res.status(200).json({ parentContent: document.parent.content });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching parent content', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching parent content", error: err.message });
   }
 };
 
+const buildTree = async (parentId = null) => {
+  const documents = await Text.find({ parent: parentId }).lean();
+  const tree = [];
 
+  for (const doc of documents) {
+    const children = await buildTree(doc._id); // Recursively fetch children
+    tree.push({
+      id: doc._id,
+      name: doc.title,
+      slug: doc.slug,
+      children,
+    });
+  }
 
+  return tree;
+};
+
+const buildHierarchyTree = async (req,res) => {
+  console.log("hitted")
+  try {
+    const tree = await buildTree(); // Start building from the root (parent = null)
+    res.json(tree);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch document tree" });
+  }
+};
 
 module.exports = {
   getText,
@@ -189,4 +220,5 @@ module.exports = {
   branchDocument,
   getParentContent,
   getDiffBetweenParentAndChild,
+  buildHierarchyTree,
 };
