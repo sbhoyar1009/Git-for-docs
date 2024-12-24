@@ -8,7 +8,8 @@ const {
   branchDocument,
   getDiffBetweenParentAndChild,
   getParentContent,
-  buildHierarchyTree
+  buildHierarchyTree,
+  mergeToParent
 } = require("../controllers/textController");
 
 const router = express.Router();
@@ -27,7 +28,7 @@ router.post("/", saveText);
 
 // Route to branch a document
 router.post("/:slug/branch", branchDocument);
-
+router.post("/merge/:slug",mergeToParent)
 // Add this route to your backend routes
 router.get("/:slug/differences", getDiffBetweenParentAndChild);
 

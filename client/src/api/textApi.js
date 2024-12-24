@@ -78,3 +78,8 @@ export const fetchDocumentTree = async () => {
   }
   return response.data;
 };
+
+export const mergeToParent = async (slug) => {
+  const response = await axios.post(`${apiUrl}/merge/${slug}`);
+  return response.data;
+};

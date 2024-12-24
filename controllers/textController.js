@@ -211,6 +211,38 @@ const buildHierarchyTree = async (req,res) => {
   }
 };
 
+const mergeToParent =async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    // Fetch the child document
+    const childDocument = await Text.findOne({ slug });
+    if (!childDocument) {
+      return res.status(404).json({ message: "Child document not found." });
+    }
+
+    // Ensure it has a parent
+    if (!childDocument.parent) {
+      return res.status(400).json({ message: "No parent document available to merge into." });
+    }
+
+    // Fetch the parent document
+    const parentDocument = await Text.findById(childDocument.parent);
+    if (!parentDocument) {
+      return res.status(404).json({ message: "Parent document not found." });
+    }
+
+    // Merge the content (for now, we'll simply append the child content to the parent)
+    // You can use a diff algorithm or other logic to merge intelligently
+    parentDocument.content = childDocument.content;
+    await parentDocument.save();
+
+    res.json({ message: "Merged successfully.", parentDocument });
+  } catch (error) {
+    res.status(500).json({ message: "Error merging documents.", error: error.message });
+  }
+};
+
 module.exports = {
   getText,
   saveText,
@@ -221,4 +253,5 @@ module.exports = {
   getParentContent,
   getDiffBetweenParentAndChild,
   buildHierarchyTree,
+  mergeToParent
 };

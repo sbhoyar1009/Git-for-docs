@@ -5,6 +5,7 @@ import {
   saveText,
   getDifferences,
   getParentContent,
+  mergeToParent,
 } from "../api/textApi";
 import TextEditor from "./TextEditor";
 import SaveButton from "./SaveButton";
@@ -97,6 +98,30 @@ const DocumentDetail = () => {
     }
   };
 
+  const handleMergeToParent = async () => {
+    if (!document?.parent) {
+      alert("No parent document available for this branch.");
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "Are you sure you want to merge this document into its parent? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await mergeToParent(slug);
+      alert("Merged successfully.");
+      navigate(`/documents/${response.parentDocument.slug}`); // Redirect to the parent document
+    } catch (error) {
+      alert("Error merging documents.");
+    }
+  };
+
+
   return (
     <div>
       {document ? (
@@ -133,6 +158,14 @@ const DocumentDetail = () => {
               >
                 {isResetting ? "Resetting..." : "Reset to Parent"}
               </button>
+              {document?.parent && (
+        <button
+          onClick={handleMergeToParent}
+          style={{ marginLeft: "10px", backgroundColor: "green", color: "white" }}
+        >
+          Merge to Parent
+        </button>
+      )}
             </div>
             {showDifferences && paragraphDiffs && (
               <div style={{ marginTop: "20px" }}>
