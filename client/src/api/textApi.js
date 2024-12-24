@@ -62,10 +62,6 @@ export const getDifferences = async (slug) => {
 
 export const getParentContent = async (slug) => {
   const response = await axios.get(`${apiUrl}/documents/${slug}/parent-content`);
-  // console.log(response.data)
-  // if (!response.ok) {
-  //   throw new Error('Failed to fetch parent content');
-  // }
 
   return response.data;
 };

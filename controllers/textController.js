@@ -1,4 +1,4 @@
-const Text = require("../models/text");
+const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
 

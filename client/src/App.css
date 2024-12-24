@@ -123,10 +123,76 @@
 }
 
 
-/* Style for the upload area */
-/* .ant-upload-drag-icon {
-  font-size: 30px;
+.login-page {
+  display: flex;
+  height: 100vh;
+  font-family: "Arial", sans-serif;
 }
-.ant-upload-text {
-  font-size: 16px;
-} */
+
+/* Left Side (Features Section) */
+.features-section {
+  flex: 2;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 50px 30px;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center; */
+}
+
+.features-section h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.features-list li {
+  margin-bottom: 10px;
+}
+
+/* Right Side (Login Form Section) */
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: #f9f9f9;
+  
+}
+
+.form-container {
+  width: 100%;
+  max-width: 350px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 200px;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.ant-btn-primary {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.ant-btn-primary:hover {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.ant-form-item {
+  margin-bottom: 15px;
+}
