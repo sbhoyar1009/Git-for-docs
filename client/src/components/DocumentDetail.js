@@ -11,10 +11,10 @@ import TextEditor from "./TextEditor";
 import SaveButton from "./SaveButton";
 import BranchButton from "./BranchButton";
 import DiffViewer from "./DiffViewer";
+import { Button } from "antd";
+import { Input } from "antd";
 
-
-
-
+const { TextArea } = Input;
 
 const DocumentDetail = () => {
   const { slug } = useParams();
@@ -27,16 +27,17 @@ const DocumentDetail = () => {
   const [showDifferences, setShowDifferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
-  const [parent,setParent] = useState(null);
-
-
+  const [parent, setParent] = useState(null);
 
   useEffect(() => {
-    console.log(slug)
+    console.log(slug);
     const getDocument = async () => {
-      if (slug=="untitled") {
+      if (slug == "untitled") {
         // Handle case where slug is undefined or blank
-        setDocument({ title: "Untitled Document", content: "<p>Start writing...</p>" });
+        setDocument({
+          title: "Untitled Document",
+          content: "<p>Start writing...</p>",
+        });
         setTitle("Untitled Document");
         setContent("<p>Start writing...</p>");
         return;
@@ -47,7 +48,7 @@ const DocumentDetail = () => {
         setDocument(documentData);
         setTitle(documentData.title);
         setContent(documentData.content);
-        setParent(documentData?.parent)
+        setParent(documentData?.parent);
       } catch (error) {
         alert("Document not found");
       }
@@ -127,54 +128,55 @@ const DocumentDetail = () => {
     }
   };
 
-
   return (
     <div>
       {document ? (
         <>
-          <h1>Edit Document</h1>
-          <div>
-            <input
-              type="text"
+          <h2>Edit Document</h2>
+          <div style={{ margin: "1rem" }}>
+            <TextArea
+              placeholder="Autosize height based on content lines"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter title"
-              style={{ fontSize: "24px", width: "100%", marginBottom: "20px" }}
+              autoSize
+              style={{ padding: "1rem" }}
             />
-            <div>{parent?parent:"This is parent doc"}</div>
             <TextEditor text={content} onChange={setContent} />
 
-            <div style={{ marginTop: "20px" }}>
+            <div
+              style={{
+                marginTop: "40px",
+                marginLeft: "50px",
+              }}
+            >
               <SaveButton onClick={handleSaveText} isSaving={isSaving} />
               <BranchButton slug={slug} />
               {document?.parent && (
                 <>
-              <button
-                onClick={handleCompareChanges}
-                style={{ marginLeft: "10px" }}
-              >
-                Compare Changes
-              </button>
-              <button
-                onClick={handleResetToParent}
-                style={{
-                  marginLeft: "10px",
-                  backgroundColor: "orange",
-                  color: "white",
-                }}
-                disabled={isResetting}
-              >
-                {isResetting ? "Resetting..." : "Reset to Parent"}
-              </button>
-            
-        <button
-          onClick={handleMergeToParent}
-          style={{ marginLeft: "10px", backgroundColor: "green", color: "white" }}
-        >
-          Merge to Parent
-        </button>
-        </>
-      )}
+                  <Button
+                    onClick={handleCompareChanges}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Compare Changes
+                  </Button>
+                  <Button
+                    onClick={handleResetToParent}
+                    style={{
+                      marginLeft: "10px",
+                    }}
+                    disabled={isResetting}
+                  >
+                    {isResetting ? "Resetting..." : "Reset to Parent"}
+                  </Button>
+
+                  <Button
+                    onClick={handleMergeToParent}
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Merge to Parent
+                  </Button>
+                </>
+              )}
             </div>
             {showDifferences && paragraphDiffs && (
               <div style={{ marginTop: "20px" }}>
@@ -187,7 +189,6 @@ const DocumentDetail = () => {
                 ))}
               </div>
             )}
-
           </div>
         </>
       ) : (

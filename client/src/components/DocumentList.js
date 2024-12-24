@@ -53,7 +53,7 @@ const DocumentList = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Button type="primary" onClick={() => handleViewDocument(record.slug)}>
+        <Button onClick={() => handleViewDocument(record.slug)}>
           View Document
         </Button>
       ),
@@ -61,7 +61,7 @@ const DocumentList = () => {
   ];
 
   return (
-    <div>
+    <div style={{padding:"1rem"}}>
       <div>
       <h2>Documents</h2>
       <NewDocumentButton />
@@ -72,7 +72,7 @@ const DocumentList = () => {
           dataSource={documents}
           rowKey={(record) => record.id}
           pagination={false} // Disable pagination for main table
-          style={{ padding: "1rem" }}
+          // style={{ padding: "1rem" }}
         />
       )}
     </div>

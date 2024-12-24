@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Flex } from 'antd';
+import { PlusOutlined } from "@ant-design/icons";
 
 export default function NewDocumentButton() {
     const navigate = useNavigate();
@@ -9,6 +10,6 @@ export default function NewDocumentButton() {
     }
 
   return (
-    <Button onClick={handleOnClick}>New Document</Button>
+    <Button style={{margin:"1rem"}}onClick={handleOnClick}><PlusOutlined />New Document</Button>
   )
 }

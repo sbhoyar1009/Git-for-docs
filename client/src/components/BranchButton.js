@@ -1,6 +1,7 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { branchDocument } from '../api/textApi';
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { branchDocument } from "../api/textApi";
+import { Button } from "antd";
 
 const BranchButton = ({ slug }) => {
   const navigate = useNavigate();
@@ -8,14 +9,18 @@ const BranchButton = ({ slug }) => {
   const handleBranch = async () => {
     try {
       const response = await branchDocument(slug);
-      alert('Branch created successfully!');
+      alert("Branch created successfully!");
       navigate(`/document/${response.branchedDoc.slug}`);
     } catch (error) {
-      alert('Error creating branch');
+      alert("Error creating branch");
     }
   };
 
-  return <button onClick={handleBranch}>Branch</button>;
+  return (
+    <Button style={{ marginLeft: "10px" }} onClick={handleBranch}>
+      Branch
+    </Button>
+  );
 };
 
 export default BranchButton;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getDifferences } from '../api/textApi';
+import { Button } from 'antd';
 
 const CompareChangesButton = ({ slug }) => {
   const [differences, setDifferences] = useState(null);
@@ -15,7 +16,7 @@ const CompareChangesButton = ({ slug }) => {
 
   return (
     <div>
-      <button onClick={handleCompare}>Compare Changes</button>
+      <Button onClick={handleCompare}>Compare Changes</Button>
       {differences && (
         <div>
           <h3>Differences:</h3>

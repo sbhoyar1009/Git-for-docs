@@ -35,7 +35,10 @@ const TextEditor = () => {
 
   // Handle file upload and populate Quill editor
   const handleFileUpload = async (file) => {
-    if (file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    if (
+      file.type !==
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
       message.error("You can only upload .docx files!");
       return false;
     }
@@ -43,7 +46,9 @@ const TextEditor = () => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       try {
-        const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result });
+        const result = await mammoth.convertToHtml({
+          arrayBuffer: e.target.result,
+        });
         const htmlContent = result.value;
 
         if (quill) {
@@ -56,7 +61,7 @@ const TextEditor = () => {
     };
     reader.readAsArrayBuffer(file);
 
-    return false; // Prevent default upload behavior
+    return false;
   };
 
   // Upload component props
@@ -70,14 +75,15 @@ const TextEditor = () => {
 
   return (
     <div>
-      <Upload {...uploadProps}>
-        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-      </Upload>
-
+      <div style={{margin:'10px'}}>
+        <Upload {...uploadProps}>
+          <Button icon={<UploadOutlined />}>Click to Import</Button>
+        </Upload>
+      </div>
       <div
         className="container"
         ref={wrapperRef}
-        style={{ marginTop: "20px", height: "400px", border: "1px solid #ccc" }}
+        style={{ marginTop: "20px", height: "400px" }}
       ></div>
     </div>
   );
