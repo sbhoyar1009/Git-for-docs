@@ -141,6 +141,8 @@ const DocumentDetail = () => {
             <div style={{ marginTop: "20px" }}>
               <SaveButton onClick={handleSaveText} isSaving={isSaving} />
               <BranchButton slug={slug} />
+              {document?.parent && (
+                <>
               <button
                 onClick={handleCompareChanges}
                 style={{ marginLeft: "10px" }}
@@ -158,13 +160,14 @@ const DocumentDetail = () => {
               >
                 {isResetting ? "Resetting..." : "Reset to Parent"}
               </button>
-              {document?.parent && (
+            
         <button
           onClick={handleMergeToParent}
           style={{ marginLeft: "10px", backgroundColor: "green", color: "white" }}
         >
           Merge to Parent
         </button>
+        </>
       )}
             </div>
             {showDifferences && paragraphDiffs && (
