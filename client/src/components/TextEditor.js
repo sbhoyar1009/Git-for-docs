@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
+import { Upload, Button, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
-import { useParams } from "react-router";
-import mammoth from "mammoth"; // Import mammoth for docx parsing
+import mammoth from "mammoth";
 
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -16,9 +17,10 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-export default function TextEditor({ text, onChange }) {
-  const [quill, setQuill] = useState();
+const TextEditor = () => {
+  const [quill, setQuill] = useState(null);
 
+  // Initialize Quill editor
   const wrapperRef = useCallback((wrapper) => {
     if (wrapper === null) return;
     wrapper.innerHTML = "";
@@ -26,92 +28,59 @@ export default function TextEditor({ text, onChange }) {
     wrapper.append(editor);
     const q = new Quill(editor, {
       theme: "snow",
-      modules: {
-        toolbar: {
-          container: TOOLBAR_OPTIONS,
-        },
-      },
+      modules: { toolbar: TOOLBAR_OPTIONS },
     });
-
-    // Set placeholder when editor is empty
-    editor.setAttribute("data-placeholder", "Start typing here...");
     setQuill(q);
   }, []);
 
-  useEffect(() => {
-    if (quill) {
-      // Set the default content if text is provided
-      if (text) {
-        const currentContent = quill.root.innerHTML;
+  // Handle file upload and populate Quill editor
+  const handleFileUpload = async (file) => {
+    if (file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      message.error("You can only upload .docx files!");
+      return false;
+    }
 
-        if (currentContent !== text) {
-          const range = quill.getSelection(); // Get the current selection range
-          quill.root.innerHTML = text; // Update the content in the editor
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const result = await mammoth.convertToHtml({ arrayBuffer: e.target.result });
+        const htmlContent = result.value;
 
-          // Restore the selection if it was present
-          if (range) {
-            quill.setSelection(range.index, range.length);
-          }
+        if (quill) {
+          quill.root.innerHTML = htmlContent; // Populate Quill editor
         }
+        message.success("File uploaded successfully!");
+      } catch (error) {
+        message.error("Failed to process the document!");
       }
+    };
+    reader.readAsArrayBuffer(file);
 
-      // Listen for changes and pass them to the parent component
-      quill.on("text-change", () => {
-        onChange(quill.root.innerHTML); // Pass the HTML content to the parent
-      });
+    return false; // Prevent default upload behavior
+  };
 
-      // Handle placeholder visibility based on editor focus and content
-      const editor = quill.root;
-
-      // Focus event - hide placeholder
-      editor.addEventListener("focus", () => {
-        if (editor.innerHTML.trim() === "") {
-          editor.classList.add("focused");
-        }
-      });
-
-      // Blur event - show placeholder if content is empty
-      editor.addEventListener("blur", () => {
-        if (editor.innerHTML.trim() === "") {
-          editor.classList.remove("focused");
-        }
-      });
-    }
-  }, [quill, text, onChange]);
-
-  // Handle file upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const arrayBuffer = event.target.result;
-
-        // Convert the arrayBuffer to HTML using mammoth
-        mammoth.convertToHtml({ arrayBuffer })
-          .then((result) => {
-            // Set the converted HTML into the Quill editor
-            quill.root.innerHTML = result.value;
-          })
-          .catch((err) => {
-            console.error("Error converting file:", err);
-          });
-      };
-      reader.readAsArrayBuffer(file); // Read the file as an arrayBuffer
-    } else {
-      alert("Please upload a valid .docx file");
-    }
+  // Upload component props
+  const uploadProps = {
+    name: "file",
+    accept: ".docx",
+    multiple: false,
+    beforeUpload: handleFileUpload, // Use file handler function
+    showUploadList: false, // Hide default file list
   };
 
   return (
-    <div className="container">
-      <input
-        type="file"
-        accept=".docx"
-        onChange={handleFileUpload}
-        style={{ marginBottom: "10px" }}
-      />
-      <div ref={wrapperRef}></div>
+    <div>
+      <Upload {...uploadProps}>
+        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+      </Upload>
+
+      <div
+        className="container"
+        ref={wrapperRef}
+        style={{ marginTop: "20px", height: "400px", border: "1px solid #ccc" }}
+      ></div>
     </div>
   );
-}
+};
+
+export default TextEditor;

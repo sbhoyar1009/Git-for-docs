@@ -12,6 +12,10 @@ import SaveButton from "./SaveButton";
 import BranchButton from "./BranchButton";
 import DiffViewer from "./DiffViewer";
 
+
+
+
+
 const DocumentDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -24,6 +28,8 @@ const DocumentDetail = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [parent,setParent] = useState(null);
+
+
 
   useEffect(() => {
     console.log(slug)

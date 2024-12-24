@@ -1,13 +1,17 @@
 import React from 'react';
+import "../src/App.css";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import DocumentList from './components/DocumentList';
 import DocumentDetail from './components/DocumentDetail';
 import TextEditor from './components/TextEditor';
 import DocumentTreeView from './components/DocumentTreeView';
+import Navbar from './components/Navbar';
 
 const App = () => {
   return (
+
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<DocumentList />} />
         <Route path="/document/:slug" element={<DocumentDetail />} />
