@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import Quill from "quill";
@@ -17,7 +17,7 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-const TextEditor = () => {
+const TextEditor = ({ text, onChange }) => {
   const [quill, setQuill] = useState(null);
 
   // Initialize Quill editor
@@ -32,6 +32,21 @@ const TextEditor = () => {
     });
     setQuill(q);
   }, []);
+
+
+  useEffect(() => {
+    if (quill) {
+      // Set the default content if text is provided
+      if (text) {
+        quill.root.innerHTML = text;
+      }
+      // Optionally, you can listen for changes and pass them to the parent component
+      quill.on("text-change", () => {
+        onChange(quill.root.innerHTML);
+        // Pass the HTML content to the parent
+      });
+    }
+  }, [quill, text, onChange]);
 
   // Handle file upload and populate Quill editor
   const handleFileUpload = async (file) => {

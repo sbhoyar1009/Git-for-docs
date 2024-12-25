@@ -79,3 +79,8 @@ export const mergeToParent = async (slug) => {
   const response = await axios.post(`${apiUrl}/merge/${slug}`);
   return response.data;
 };
+
+export const getDocumentStatistics = async (id) => {
+  const response = await axios.get(`${apiUrl}/statistics/${id}`);
+  return response.data.stats;
+};

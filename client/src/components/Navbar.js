@@ -7,7 +7,7 @@ const { Header, Content, Footer } = Layout;
 const items = [
   {
     key: "1",
-    label: <Link to="/">Home</Link>, // Link to Home page
+    label: <Link to="/documents">Home</Link>, // Link to Home page
   },
   {
     key: "2",

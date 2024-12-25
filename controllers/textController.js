@@ -243,6 +243,20 @@ const mergeToParent =async (req, res) => {
   }
 };
 
+const fetchDocumentStatistics = async (req,res) => {
+
+  const docId = req.params.id;
+  try {
+    const stats = await Text.getDocumentStatistics(docId);
+    console.log("Document Statistics:", stats);
+    res.json({ message: "Stats fetched", stats });
+  } catch (error) {
+    console.error("Error fetching statistics:", error.message);
+  }
+};
+
+
+
 module.exports = {
   getText,
   saveText,
@@ -253,5 +267,6 @@ module.exports = {
   getParentContent,
   getDiffBetweenParentAndChild,
   buildHierarchyTree,
-  mergeToParent
+  mergeToParent,
+  fetchDocumentStatistics
 };

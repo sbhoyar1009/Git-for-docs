@@ -38,7 +38,6 @@ const login = async (req, res) => {
     }
 
     const isMatch = bcrypt.compareSync(password, user.password);
-    console.log(isMatch)
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid username or password" });
     }

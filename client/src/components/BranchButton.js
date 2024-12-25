@@ -2,6 +2,7 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { branchDocument } from "../api/textApi";
 import { Button } from "antd";
+import { BranchesOutlined } from "@ant-design/icons";
 
 const BranchButton = ({ slug }) => {
   const navigate = useNavigate();
@@ -18,7 +19,8 @@ const BranchButton = ({ slug }) => {
 
   return (
     <Button style={{ marginLeft: "10px" }} onClick={handleBranch}>
-      Branch
+      <BranchesOutlined />
+      Create a branch
     </Button>
   );
 };

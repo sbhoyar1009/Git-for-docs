@@ -15,6 +15,31 @@ textSchema.pre('save', function (next) {
   next();
 });
 
+textSchema.methods.getStatistics = async function () {
+  const wordCount = this.content.split(/\s+/).filter((word) => word).length;
+  const characterCount = this.content.length;
+
+  // Count child documents
+  const childCount = await Text.countDocuments({ parent: this._id });
+
+  return {
+    title: this.title,
+    wordCount,
+    characterCount,
+    childCount,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
+  };
+};
+
+// Static method to fetch a document and generate its statistics
+textSchema.statics.getDocumentStatistics = async function (id) {
+  const document = await this.findById(id);
+  if (!document) throw new Error("Document not found");
+  return await document.getStatistics();
+};
+
+
 const Text = mongoose.model('Text', textSchema);
 
 module.exports = Text;

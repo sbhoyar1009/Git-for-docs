@@ -4,6 +4,7 @@ import { fetchAllTexts } from "../api/textApi";
 import NewDocumentButton from "./NewDocumentButton";
 import Navbar from "./Navbar";
 import { Button, DatePicker, Table } from "antd";
+import DocumentStats from "./DocumentStats";
 
 const DocumentList = () => {
   const [documents, setDocuments] = useState([]);
@@ -50,12 +51,19 @@ const DocumentList = () => {
       render: (text) => (text ? text : "N/A"), // Display "N/A" if slug is not present
     },
     {
-      title: "Action",
+      title: "View Document",
       key: "action",
       render: (_, record) => (
         <Button onClick={() => handleViewDocument(record.slug)}>
           View Document
         </Button>
+      ),
+    },
+    {
+      title: "View Document Stats",
+      key: "action",
+      render: (_, record) => (
+        <DocumentStats documentId={record._id} />
       ),
     },
   ];
@@ -70,7 +78,7 @@ const DocumentList = () => {
         <Table
           columns={columns}
           dataSource={documents}
-          rowKey={(record) => record.id}
+          rowKey={(record) => record._id}
           pagination={false} // Disable pagination for main table
           // style={{ padding: "1rem" }}
         />

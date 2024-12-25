@@ -13,6 +13,7 @@ import BranchButton from "./BranchButton";
 import DiffViewer from "./DiffViewer";
 import { Button } from "antd";
 import { Input } from "antd";
+import { LeftOutlined, MergeOutlined, RightOutlined, RollbackOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
 
@@ -71,7 +72,7 @@ const DocumentDetail = () => {
     try {
       await saveText(slug, { title, content });
       alert("Document saved successfully");
-      navigate("/");
+      // navigate("/documents");
     } catch (error) {
       alert("Error saving document");
     } finally {
@@ -157,6 +158,8 @@ const DocumentDetail = () => {
                     onClick={handleCompareChanges}
                     style={{ marginLeft: "10px" }}
                   >
+                    <LeftOutlined />
+                    <RightOutlined />
                     Compare Changes
                   </Button>
                   <Button
@@ -166,13 +169,15 @@ const DocumentDetail = () => {
                     }}
                     disabled={isResetting}
                   >
-                    {isResetting ? "Resetting..." : "Reset to Parent"}
+                    <RollbackOutlined />
+                    {isResetting ? "Resetting..." : "Rollback to Parent"}
                   </Button>
 
                   <Button
                     onClick={handleMergeToParent}
                     style={{ marginLeft: "10px" }}
                   >
+                    <MergeOutlined />
                     Merge to Parent
                   </Button>
                 </>

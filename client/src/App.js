@@ -14,9 +14,9 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<DocumentList />} />
+        <Route path="/documents" element={<DocumentList />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/login' element={<Login />} />
+        <Route path='/' element={<Login />} />
 
         <Route path="/document/:slug" element={<DocumentDetail />} />
         <Route path="/document/tree" element={<DocumentTreeView />} />

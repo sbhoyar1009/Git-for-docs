@@ -9,7 +9,8 @@ const {
   getDiffBetweenParentAndChild,
   getParentContent,
   buildHierarchyTree,
-  mergeToParent
+  mergeToParent,
+  fetchDocumentStatistics
 } = require("../controllers/textController");
 
 const router = express.Router();
@@ -33,6 +34,6 @@ router.post("/merge/:slug",mergeToParent)
 router.get("/:slug/differences", getDiffBetweenParentAndChild);
 
 router.get("/documents/:slug/parent-content", getParentContent);
-
+router.get("/statistics/:id",fetchDocumentStatistics)
 
 module.exports = router;
