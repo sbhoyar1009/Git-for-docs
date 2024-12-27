@@ -6,7 +6,8 @@ const textSchema = new mongoose.Schema({
   content: { type: String, required: true },
   slug: { type: String, unique: true },
   parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Text', default: null }, // Reference to parent document
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  latestVersion : {type: Number, default : 1}
 });
 
 // Before saving the document, generate a slug from the title

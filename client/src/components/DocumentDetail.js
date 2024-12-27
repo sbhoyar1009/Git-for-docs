@@ -13,7 +13,13 @@ import BranchButton from "./BranchButton";
 import DiffViewer from "./DiffViewer";
 import { Button } from "antd";
 import { Input } from "antd";
-import { LeftOutlined, MergeOutlined, RightOutlined, RollbackOutlined } from "@ant-design/icons";
+import {
+  LeftOutlined,
+  MergeOutlined,
+  RightOutlined,
+  RollbackOutlined,
+} from "@ant-design/icons";
+import CreateCheckpoint from "./CreateCheckpoint";
 
 const { TextArea } = Input;
 
@@ -29,6 +35,7 @@ const DocumentDetail = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [parent, setParent] = useState(null);
+  const [documentID, setDocumentID] = useState(null);
 
   useEffect(() => {
     console.log(slug);
@@ -47,6 +54,7 @@ const DocumentDetail = () => {
       try {
         const documentData = await fetchTextBySlug(slug);
         setDocument(documentData);
+        setDocumentID(documentData._id);
         setTitle(documentData.title);
         setContent(documentData.content);
         setParent(documentData?.parent);
@@ -152,6 +160,7 @@ const DocumentDetail = () => {
             >
               <SaveButton onClick={handleSaveText} isSaving={isSaving} />
               <BranchButton slug={slug} />
+              {documentID && <CreateCheckpoint id={documentID} content={content} />}
               {document?.parent && (
                 <>
                   <Button
@@ -182,7 +191,9 @@ const DocumentDetail = () => {
                   </Button>
                 </>
               )}
+
             </div>
+
             {showDifferences && paragraphDiffs && (
               <div style={{ marginTop: "20px" }}>
                 <h3>Paragraph Differences:</h3>

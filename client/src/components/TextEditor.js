@@ -34,21 +34,60 @@ const TextEditor = ({ text, onChange }) => {
   }, []);
 
 
+  // useEffect(() => {
+  //   if (quill) {
+  //     // Set the default content if text is provided
+  //     if (text) {
+  //       quill.root.innerHTML = text;
+  //     }
+  //     // Optionally, you can listen for changes and pass them to the parent component
+  //     quill.on("text-change", () => {
+  //       onChange(quill.root.innerHTML);
+  //       // Pass the HTML content to the parent
+  //     });
+  //   }
+  // }, [quill, text, onChange]);
+
+  // Handle file upload and populate Quill editor
+  
   useEffect(() => {
     if (quill) {
       // Set the default content if text is provided
       if (text) {
-        quill.root.innerHTML = text;
+        const currentContent = quill.root.innerHTML;
+        if (currentContent !== text) {
+          const range = quill.getSelection(); // Get the current selection range
+          quill.root.innerHTML = text; // Update the content in the editor
+          // Restore the selection if it was present
+          if (range) {
+            quill.setSelection(range.index, range.length);
+          }
+        }
       }
+
       // Optionally, you can listen for changes and pass them to the parent component
+      // Listen for changes and pass them to the parent component
       quill.on("text-change", () => {
-        onChange(quill.root.innerHTML);
-        // Pass the HTML content to the parent
+        onChange(quill.root.innerHTML); // Pass the HTML content to the parent
+      });
+      // Handle placeholder visibility based on editor focus and content
+      const editor = quill.root;
+      // Focus event - hide placeholder
+      editor.addEventListener("focus", () => {
+        if (editor.innerHTML.trim() === "") {
+          editor.classList.add("focused");
+        }
+      });
+      // Blur event - show placeholder if content is empty
+      editor.addEventListener("blur", () => {
+        if (editor.innerHTML.trim() === "") {
+          editor.classList.remove("focused");
+        }
       });
     }
   }, [quill, text, onChange]);
-
-  // Handle file upload and populate Quill editor
+  
+  
   const handleFileUpload = async (file) => {
     if (
       file.type !==

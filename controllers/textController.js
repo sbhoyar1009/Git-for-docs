@@ -52,7 +52,6 @@ const getTextBySlug = async (req, res) => {
 // };
 
 const saveText = async (req, res) => {
-  console.log("Save is called");
   try {
     const { title, content } = req.body;
     const newText = new Text({

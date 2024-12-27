@@ -5,6 +5,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const textRoutes = require('./routes/text');
 const userRoutes = require('./routes/user');
+const versionRoutes = require('./routes/version');
 const { fetchDocumentStatistics } = require('./controllers/textController');
 
 const app = express();
@@ -19,6 +20,7 @@ connectDB();
 // Routes
 app.use('/api/text', textRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/version', versionRoutes);
 // Start the server
 
 app.listen(5001, () => {
