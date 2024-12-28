@@ -3,26 +3,29 @@ import { Form, Input, Button, Typography, message } from "antd";
 import { login } from "../api/userApi";
 import { useNavigate } from "react-router-dom";
 import HomeLeftPanel from "./HomeLeftPanel";
+import { useDispatch } from "react-redux";
+import { setUserId } from "../redux/userSlice";
 
 const { Title } = Typography;
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async (values) => {
     const { username, password } = values;
     setLoading(true);
     try {
       const response = await login(username, password);
-      if(response){
-        console.log(response)
+
+      if (response) {
+        dispatch(setUserId(response._doc._id));
         message.success("Login successful!");
         navigate("/documents");
-      }else{
+      } else {
         message.error("Error logging in");
       }
-
     } catch (error) {
       message.error("Error logging in");
     } finally {

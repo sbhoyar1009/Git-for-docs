@@ -20,12 +20,15 @@ import {
   RollbackOutlined,
 } from "@ant-design/icons";
 import CreateCheckpoint from "./CreateCheckpoint";
+import { useSelector } from "react-redux";
 
 const { TextArea } = Input;
 
 const DocumentDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const userId = useSelector((state) => state.user.userId);
+  console.log(userId)
 
   const [document, setDocument] = useState(null);
   const [title, setTitle] = useState("Untitled Document");
@@ -78,7 +81,7 @@ const DocumentDetail = () => {
   const handleSaveText = async () => {
     setIsSaving(true);
     try {
-      await saveText(slug, { title, content });
+      await saveText(slug, { title, content,userId });
       alert("Document saved successfully");
       // navigate("/documents");
     } catch (error) {
@@ -143,6 +146,7 @@ const DocumentDetail = () => {
         <>
           <h2>Edit Document</h2>
           <h5>Current Version {document.latestVersion?document.latestVersion : 1}</h5>
+          <p>{userId}</p>
           <div style={{ margin: "1rem" }}>
             <TextArea
               placeholder="Autosize height based on content lines"

@@ -1,17 +1,18 @@
-const mongoose = require('mongoose');
-const slugify = require('slugify');  // To generate unique slugs for each document
+const mongoose = require("mongoose");
+const slugify = require("slugify"); // To generate unique slugs for each document
 
 const textSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
   slug: { type: String, unique: true },
-  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Text', default: null }, // Reference to parent document
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }, // Reference to parent document
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: "Text", default: null }, // Reference to parent document
   createdAt: { type: Date, default: Date.now },
-  latestVersion : {type: Number, default : 1}
+  latestVersion: { type: Number, default: 1 },
 });
 
 // Before saving the document, generate a slug from the title
-textSchema.pre('save', function (next) {
+textSchema.pre("save", function (next) {
   this.slug = slugify(this.title, { lower: true });
   next();
 });
@@ -40,7 +41,6 @@ textSchema.statics.getDocumentStatistics = async function (id) {
   return await document.getStatistics();
 };
 
-
-const Text = mongoose.model('Text', textSchema);
+const Text = mongoose.model("Text", textSchema);
 
 module.exports = Text;

@@ -16,7 +16,7 @@ const {
 const router = express.Router();
 
 // Route to get all documents
-router.get("/", getAllTexts);
+router.get("/:userId", getAllTexts);
 router.get("/document/tree",buildHierarchyTree)
 // Route to get a specific document by its slug
 router.get("/:slug", getTextBySlug);

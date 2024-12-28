@@ -34,9 +34,7 @@ export const login = async (username, password) => {
     // return response.data;
   try {
     const response = await API.post("/login", { username, password });
-    console.log("Response is ",response)
     localStorage.setItem("token", response.data.token); // Save token
-    console.log("Token is ",response.data.token)
     return response.data;
   } catch (error) {
     // message.error("Login failed!");

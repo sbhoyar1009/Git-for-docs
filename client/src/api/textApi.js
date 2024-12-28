@@ -17,9 +17,9 @@ API.interceptors.request.use((req) => {
 });
 
 // Fetch all text documents
-export const fetchAllTexts = async () => {
+export const fetchAllTexts = async (userId) => {
   try {
-    const response = await API.get(apiUrl);
+    const response = await API.get(`/${userId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching documents:', error);
@@ -39,10 +39,10 @@ export const fetchTextBySlug = async (slug) => {
 };
 
 // Save the updated text (both title and content)
-export const saveText = async (slug, { title, content }) => {
+export const saveText = async (slug, { title, content,userId }) => {
   try {
     if (slug=="untitled"){
-      await API.post(`/`, { title, content });
+      await API.post(`/`, { title, content,userId });
     }else{
       await axios.put(`${apiUrl}/${slug}`, { title, content });
     }

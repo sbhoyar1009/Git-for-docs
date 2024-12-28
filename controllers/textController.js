@@ -18,8 +18,9 @@ const getText = async (req, res) => {
 
 // Controller to get all documents
 const getAllTexts = async (req, res) => {
+  const userID = req.params.userId;
   try {
-    const texts = await Text.find();
+    const texts = await Text.find({userId:userID});
     res.json(texts);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch documents" });
@@ -54,10 +55,11 @@ const getTextBySlug = async (req, res) => {
 
 const saveText = async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content,userId } = req.body;
     const newText = new Text({
       title,
       content, // content will be the HTML from Quill editor
+      userId
     });
     await newText.save();
     res.status(201).json(newText);

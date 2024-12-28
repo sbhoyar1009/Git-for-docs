@@ -5,10 +5,12 @@ import NewDocumentButton from "./NewDocumentButton";
 import Navbar from "./Navbar";
 import { Button, DatePicker, Table } from "antd";
 import DocumentStats from "./DocumentStats";
+import { useSelector } from "react-redux";
 
 const DocumentList = () => {
   const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
+  const userId = useSelector((state) => state.user.userId);
 
   const handleViewDocument = (id) => {
     // Navigate to the document viewer page or handle logic
@@ -19,7 +21,7 @@ const DocumentList = () => {
   useEffect(() => {
     const getDocuments = async () => {
       try {
-        const allTexts = await fetchAllTexts();
+        const allTexts = await fetchAllTexts(userId);
 
         setDocuments(allTexts);
       } catch (error) {
