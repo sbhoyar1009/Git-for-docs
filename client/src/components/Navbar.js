@@ -1,21 +1,34 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Assuming you're using React Router for routing
-import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Link, useNavigate } from "react-router-dom"; // Assuming you're using React Router for routing
+import { Breadcrumb, Button, Layout, Menu, theme } from "antd";
 const { Header, Content, Footer } = Layout;
 
-
-const items = [
-  {
-    key: "1",
-    label: <Link to="/documents">Home</Link>, // Link to Home page
-  },
-  {
-    key: "2",
-    label: <Link to="/document/tree">Tree View</Link>, // Link to Document Tree View
-  },
-];
-
 export default function Navbar() {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Clear token from localStorage
+    localStorage.removeItem("token");
+    // Redirect to login page
+    navigate("/");
+  };
+  const items = [
+    {
+      key: "1",
+      label: <Link to="/documents">Home</Link>, // Link to Home page
+    },
+    {
+      key: "2",
+      label: <Link to="/document/tree">Tree View</Link>, // Link to Document Tree View
+    },
+    {
+      key: "3",
+      label: (
+        <Button onClick={handleLogout}>
+          Logout
+        </Button>
+      ), // Link to Home page
+    },
+  ];
   return (
     <Header
       style={{

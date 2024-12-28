@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
+const { generateToken } = require("../utils/jwt");
+
+
 
 const registerUser = async (req, res) => {
   const { username, password } = req.body;
@@ -26,7 +29,6 @@ const registerUser = async (req, res) => {
 
 const login = async (req, res) => {
   const { username, password } = req.body;
-    console.log(username,password)
   if (!username || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -42,7 +44,8 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid username or password" });
     }
 
-    res.status(200).json({ message: "Login successful" });
+    const token = generateToken(user._id);
+    res.json({ token });
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: "Error logging in" });

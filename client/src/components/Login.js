@@ -8,30 +8,28 @@ const { Title } = Typography;
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLogin = async (values) => {
     const { username, password } = values;
     setLoading(true);
     try {
-      const response = await login(username,password);
-      console.log(response.message)
-      if(response?.message==="Login successful"){
-        message.success("Login successful!"); // Show success popup
+      const response = await login(username, password);
+      if(response){
+        console.log(response)
+        message.success("Login successful!");
         navigate("/documents");
-      }else {
-        message.error(response.message || "Login failed!"); // Show error popup
+      }else{
+        message.error("Error logging in");
       }
+
     } catch (error) {
       message.error("Error logging in");
     } finally {
       setLoading(false);
-      
     }
   };
 
-
- 
   return (
     <div className="login-page">
       {/* Left Side - Features */}
@@ -50,14 +48,18 @@ const Login = () => {
             <Form.Item
               label="Username"
               name="username"
-              rules={[{ required: true, message: "Please input your username!" }]}
+              rules={[
+                { required: true, message: "Please input your username!" },
+              ]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               label="Password"
               name="password"
-              rules={[{ required: true, message: "Please input your password!" }]}
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
             >
               <Input.Password />
             </Form.Item>
@@ -70,14 +72,15 @@ const Login = () => {
               >
                 Login
               </Button>
-              <div style={{margin:"1rem"}}>Not an user? <a href="/register">Register</a> here</div>
+              <div style={{ margin: "1rem" }}>
+                Not an user? <a href="/register">Register</a> here
+              </div>
             </Form.Item>
           </Form>
         </div>
       </div>
     </div>
   );
-
 };
 
 export default Login;

@@ -3,7 +3,6 @@ const Version = require("../models/Version");
 
 const createNewVersion = async (req, res) => {
   const documentID = req.params.documentID;
-  console.log(documentID)
   const doc = await Text.findById(documentID);
   const latestVersion = doc.latestVersion;
   try {

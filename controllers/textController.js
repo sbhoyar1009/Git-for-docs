@@ -2,6 +2,7 @@ const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
 
+
 // Controller to get the current text content
 const getText = async (req, res) => {
   try {

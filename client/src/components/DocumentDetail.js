@@ -142,6 +142,7 @@ const DocumentDetail = () => {
       {document ? (
         <>
           <h2>Edit Document</h2>
+          <h5>Current Version {document.latestVersion?document.latestVersion : 1}</h5>
           <div style={{ margin: "1rem" }}>
             <TextArea
               placeholder="Autosize height based on content lines"

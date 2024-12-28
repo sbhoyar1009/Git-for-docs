@@ -1,11 +1,25 @@
 import axios from 'axios';
 
+
 const apiUrl = 'http://localhost:5001/api/text';
+
+
+
+const API = axios.create({ baseURL: apiUrl });
+
+// Add token to headers before every request
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    req.headers.authorization = `Bearer ${token}`;
+  }
+  return req;
+});
 
 // Fetch all text documents
 export const fetchAllTexts = async () => {
   try {
-    const response = await axios.get(apiUrl);
+    const response = await API.get(apiUrl);
     return response.data;
   } catch (error) {
     console.error('Error fetching documents:', error);
@@ -16,7 +30,7 @@ export const fetchAllTexts = async () => {
 // Fetch a specific text document by its slug
 export const fetchTextBySlug = async (slug) => {
   try {
-    const response = await axios.get(`${apiUrl}/${slug}`);
+    const response = await API.get(`/${slug}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching document by slug:', error);
@@ -28,7 +42,7 @@ export const fetchTextBySlug = async (slug) => {
 export const saveText = async (slug, { title, content }) => {
   try {
     if (slug=="untitled"){
-      await axios.post(`${apiUrl}/`, { title, content });
+      await API.post(`/`, { title, content });
     }else{
       await axios.put(`${apiUrl}/${slug}`, { title, content });
     }
@@ -40,7 +54,7 @@ export const saveText = async (slug, { title, content }) => {
 
 export const branchDocument = async (slug) => {
   try {
-    const response = await axios.post(`${apiUrl}/${slug}/branch`);
+    const response = await API.post(`/${slug}/branch`);
     return response.data;
   } catch (error) {
     console.error('Error creating branch:', error);
@@ -50,7 +64,7 @@ export const branchDocument = async (slug) => {
 // Fetch differences between parent and child documents
 export const getDifferences = async (slug) => {
   try {
-    const response = await axios.get(`${apiUrl}/${slug}/differences`);
+    const response = await API.get(`/${slug}/differences`);
     console.log("Response is..",response.data.diffResult)
     return response.data.diffResult;
   } catch (error) {
@@ -61,13 +75,13 @@ export const getDifferences = async (slug) => {
 
 
 export const getParentContent = async (slug) => {
-  const response = await axios.get(`${apiUrl}/documents/${slug}/parent-content`);
+  const response = await API.get(`/documents/${slug}/parent-content`);
 
   return response.data;
 };
 
 export const fetchDocumentTree = async () => {
-  const response = await axios.get(`${apiUrl}/document/tree`);
+  const response = await API.get(`/document/tree`);
   console.log(response)
   if (response.statusText!="OK") {
     throw new Error('Failed to fetch document tree');
@@ -76,11 +90,11 @@ export const fetchDocumentTree = async () => {
 };
 
 export const mergeToParent = async (slug) => {
-  const response = await axios.post(`${apiUrl}/merge/${slug}`);
+  const response = await API.post(`/merge/${slug}`);
   return response.data;
 };
 
 export const getDocumentStatistics = async (id) => {
-  const response = await axios.get(`${apiUrl}/statistics/${id}`);
+  const response = await API.get(`/statistics/${id}`);
   return response.data.stats;
 };
