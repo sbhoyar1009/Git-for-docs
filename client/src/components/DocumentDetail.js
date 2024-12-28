@@ -28,8 +28,6 @@ const DocumentDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const userId = useSelector((state) => state.user.userId);
-  console.log(userId)
-
   const [document, setDocument] = useState(null);
   const [title, setTitle] = useState("Untitled Document");
   const [content, setContent] = useState("<p>Start writing...</p>");
@@ -41,7 +39,6 @@ const DocumentDetail = () => {
   const [documentID, setDocumentID] = useState(null);
 
   useEffect(() => {
-    console.log(slug);
     const getDocument = async () => {
       if (slug == "untitled") {
         // Handle case where slug is undefined or blank
@@ -55,7 +52,7 @@ const DocumentDetail = () => {
       }
 
       try {
-        const documentData = await fetchTextBySlug(slug);
+        const documentData = await fetchTextBySlug(userId,slug);
         setDocument(documentData);
         setDocumentID(documentData._id);
         setTitle(documentData.title);

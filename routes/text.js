@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/:userId", getAllTexts);
 router.get("/document/tree",buildHierarchyTree)
 // Route to get a specific document by its slug
-router.get("/:slug", getTextBySlug);
+router.get("/:userId/:slug", getTextBySlug);
 
 // Route to update a specific document by its slug
 router.put("/:slug", updateTextBySlug);

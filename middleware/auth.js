@@ -12,6 +12,7 @@ const protect = (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded; // Attach decoded token payload to the request
+      console.log(token)
       next();
     } catch (error) {
       return res.status(401).json({ message: "Not authorized, token failed" });
@@ -19,6 +20,7 @@ const protect = (req, res, next) => {
   }
 
   if (!token) {
+    console.log("No token")
     return res.status(401).json({ message: "Not authorized, no token" });
   }
 };

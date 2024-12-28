@@ -6,8 +6,8 @@ const userRoutes = require("./routes/user");
 const versionRoutes = require("./routes/version");
 const { fetchDocumentStatistics } = require("./controllers/textController");
 const { protect } = require("./middleware/auth");
-const dotenv = require("dotenv")
-dotenv.config()
+const dotenv = require("dotenv");
+dotenv.config();
 const app = express();
 
 // Middleware
@@ -18,8 +18,8 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/api/text",protect, textRoutes);
-app.use("/api/user",userRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/text", protect, textRoutes);
 app.use("/api/version", protect, versionRoutes);
 // Start the server
 

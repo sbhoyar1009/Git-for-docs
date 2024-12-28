@@ -37,21 +37,10 @@ const getTextBySlug = async (req, res) => {
     }
     res.json(text);
   } catch (err) {
+    console.log(err)
     res.status(500).json({ message: "Failed to fetch document" });
   }
 };
-
-// Controller to save the text content
-// const saveText = async (req, res) => {
-//   const { title, content } = req.body;
-//   try {
-//     const newText = new Text({ title, content });
-//     await newText.save();
-//     res.status(200).json({ message: "Text saved successfully" });
-//   } catch (err) {
-//     res.status(500).json({ message: "Failed to save text" });
-//   }
-// };
 
 const saveText = async (req, res) => {
   try {

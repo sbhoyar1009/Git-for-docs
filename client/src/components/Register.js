@@ -9,13 +9,11 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (values) => {
-    console.log(values);
     const { username, password } = values;
 
     setLoading(true);
     try {
       const response = await registerUser(username, password);
-      console.log(response);
     } catch (error) {
       message.error("Error registering user");
     } finally {

@@ -28,9 +28,9 @@ export const fetchAllTexts = async (userId) => {
 };
 
 // Fetch a specific text document by its slug
-export const fetchTextBySlug = async (slug) => {
+export const fetchTextBySlug = async (userId,slug) => {
   try {
-    const response = await API.get(`/${slug}`);
+    const response = await API.get(`/${userId}/${slug}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching document by slug:', error);
@@ -65,7 +65,6 @@ export const branchDocument = async (slug) => {
 export const getDifferences = async (slug) => {
   try {
     const response = await API.get(`/${slug}/differences`);
-    console.log("Response is..",response.data.diffResult)
     return response.data.diffResult;
   } catch (error) {
     console.error('Error fetching differences:', error);
@@ -82,7 +81,6 @@ export const getParentContent = async (slug) => {
 
 export const fetchDocumentTree = async () => {
   const response = await API.get(`/document/tree`);
-  console.log(response)
   if (response.statusText!="OK") {
     throw new Error('Failed to fetch document tree');
   }

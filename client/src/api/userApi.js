@@ -17,7 +17,6 @@ export default API;
 
 
 export const registerUser = async (username, password) => {
-  console.log("API", username, password);
   const response = await axios.post(`${apiUrl}/register`, {
     username,
     password,
