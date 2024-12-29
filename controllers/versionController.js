@@ -10,8 +10,8 @@ const createNewVersion = async (req, res) => {
     const newVersion = new Version({
       name: name,
       content: content,
-      version: latestVersion + 1,
-      documentID: documentID
+      version: latestVersion,
+      documentID: documentID,
     });
     await newVersion.save();
     const updateVersion = await Text.findByIdAndUpdate(documentID, {
@@ -25,6 +25,19 @@ const createNewVersion = async (req, res) => {
   }
 };
 
+const fetchAllVersionsOfDocument = async (req, res) => {
+  const documentID = req.params.documentID;
+  try {
+    const allVersions = await Version.find({ documentID: documentID });
+    res.send(allVersions);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error saving document", error: error.message });
+  }
+};
+
 module.exports = {
-    createNewVersion
-}
+  createNewVersion,
+  fetchAllVersionsOfDocument,
+};

@@ -33,21 +33,6 @@ const TextEditor = ({ text, onChange }) => {
     setQuill(q);
   }, []);
 
-
-  // useEffect(() => {
-  //   if (quill) {
-  //     // Set the default content if text is provided
-  //     if (text) {
-  //       quill.root.innerHTML = text;
-  //     }
-  //     // Optionally, you can listen for changes and pass them to the parent component
-  //     quill.on("text-change", () => {
-  //       onChange(quill.root.innerHTML);
-  //       // Pass the HTML content to the parent
-  //     });
-  //   }
-  // }, [quill, text, onChange]);
-
   // Handle file upload and populate Quill editor
   
   useEffect(() => {

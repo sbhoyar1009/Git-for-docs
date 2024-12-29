@@ -10,11 +10,12 @@ const {
   getParentContent,
   buildHierarchyTree,
   mergeToParent,
-  fetchDocumentStatistics
+  fetchDocumentStatistics,
+  updateSchema
 } = require("../controllers/textController");
 
 const router = express.Router();
-
+// router.post("/update/schema",updateSchema);
 // Route to get all documents
 router.get("/:userId", getAllTexts);
 router.get("/document/tree",buildHierarchyTree)
@@ -35,5 +36,8 @@ router.get("/:slug/differences", getDiffBetweenParentAndChild);
 
 router.get("/documents/:slug/parent-content", getParentContent);
 router.get("/statistics/:id",fetchDocumentStatistics)
+
+
+
 
 module.exports = router;

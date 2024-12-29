@@ -36,11 +36,6 @@ const DocumentList = () => {
       key: "srno",
       render: (_, __, index) => index + 1, // Display serial number
     },
-    // {
-    //   title: "ID",
-    //   dataIndex: "_id",
-    //   key: "id",
-    // },
     {
       title: "Title",
       dataIndex: "title",

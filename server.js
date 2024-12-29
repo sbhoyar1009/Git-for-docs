@@ -19,8 +19,8 @@ connectDB();
 
 // Routes
 app.use("/api/user", userRoutes);
-app.use("/api/text", protect, textRoutes);
-app.use("/api/version", protect, versionRoutes);
+app.use("/api/text",protect, textRoutes);
+app.use("/api/version", protect,versionRoutes);
 // Start the server
 
 app.listen(5001, () => {

@@ -7,6 +7,7 @@ import DocumentTreeView from './components/DocumentTreeView';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Register from './components/Register';
+import VersionTable from './components/VersionTable';
 
 const App = () => {
   return (
@@ -19,8 +20,8 @@ const App = () => {
         <Route path='/' element={<Login />} />
 
         <Route path="/document/:slug" element={<DocumentDetail />} />
+        <Route path="/document/:id/versions" element={<VersionTable />} />
         <Route path="/document/tree" element={<DocumentTreeView />} />
-          {/* <Route path="/document/:slug" element={<TextEditor />} /> */}
       </Routes>
     </Router>
   );

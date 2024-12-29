@@ -44,7 +44,7 @@ export const saveText = async (slug, { title, content,userId }) => {
     if (slug=="untitled"){
       await API.post(`/`, { title, content,userId });
     }else{
-      await axios.put(`${apiUrl}/${slug}`, { title, content });
+      await API.put(`/${slug}`, { title, content });
     }
   } catch (error) {
     console.error('Error saving document:', error);

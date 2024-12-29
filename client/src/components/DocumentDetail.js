@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   fetchTextBySlug,
   saveText,
@@ -27,6 +27,7 @@ const { TextArea } = Input;
 const DocumentDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const userId = useSelector((state) => state.user.userId);
   const [document, setDocument] = useState(null);
   const [title, setTitle] = useState("Untitled Document");
@@ -137,13 +138,17 @@ const DocumentDetail = () => {
     }
   };
 
+  const handlePreviousVersions = async()=>{
+    navigate(`/document/${document._id}/versions`)
+  }
+
   return (
     <div>
       {document ? (
         <>
           <h2>Edit Document</h2>
           <h5>Current Version {document.latestVersion?document.latestVersion : 1}</h5>
-          <p>{userId}</p>
+          <Button onClick={handlePreviousVersions}>View Previous Versions</Button>
           <div style={{ margin: "1rem" }}>
             <TextArea
               placeholder="Autosize height based on content lines"

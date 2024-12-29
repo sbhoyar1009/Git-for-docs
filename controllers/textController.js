@@ -2,7 +2,6 @@ const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
 
-
 // Controller to get the current text content
 const getText = async (req, res) => {
   try {
@@ -20,7 +19,7 @@ const getText = async (req, res) => {
 const getAllTexts = async (req, res) => {
   const userID = req.params.userId;
   try {
-    const texts = await Text.find({userId:userID});
+    const texts = await Text.find({ userId: userID });
     res.json(texts);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch documents" });
@@ -37,18 +36,18 @@ const getTextBySlug = async (req, res) => {
     }
     res.json(text);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).json({ message: "Failed to fetch document" });
   }
 };
 
 const saveText = async (req, res) => {
   try {
-    const { title, content,userId } = req.body;
+    const { title, content, userId } = req.body;
     const newText = new Text({
       title,
       content, // content will be the HTML from Quill editor
-      userId
+      userId,
     });
     await newText.save();
     res.status(201).json(newText);
@@ -191,8 +190,8 @@ const buildTree = async (parentId = null) => {
   return tree;
 };
 
-const buildHierarchyTree = async (req,res) => {
-  console.log("hitted")
+const buildHierarchyTree = async (req, res) => {
+  console.log("hitted");
   try {
     const tree = await buildTree(); // Start building from the root (parent = null)
     res.json(tree);
@@ -202,7 +201,7 @@ const buildHierarchyTree = async (req,res) => {
   }
 };
 
-const mergeToParent =async (req, res) => {
+const mergeToParent = async (req, res) => {
   const { slug } = req.params;
 
   try {
@@ -214,7 +213,9 @@ const mergeToParent =async (req, res) => {
 
     // Ensure it has a parent
     if (!childDocument.parent) {
-      return res.status(400).json({ message: "No parent document available to merge into." });
+      return res
+        .status(400)
+        .json({ message: "No parent document available to merge into." });
     }
 
     // Fetch the parent document
@@ -230,12 +231,13 @@ const mergeToParent =async (req, res) => {
 
     res.json({ message: "Merged successfully.", parentDocument });
   } catch (error) {
-    res.status(500).json({ message: "Error merging documents.", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error merging documents.", error: error.message });
   }
 };
 
-const fetchDocumentStatistics = async (req,res) => {
-
+const fetchDocumentStatistics = async (req, res) => {
   const docId = req.params.id;
   try {
     const stats = await Text.getDocumentStatistics(docId);
@@ -246,7 +248,14 @@ const fetchDocumentStatistics = async (req,res) => {
   }
 };
 
+const updateSchema = async () => {
+  const result = await Text.updateMany(
+    {}, // Match all documents
+    { $set: { userId: "676b025fdf05a7b124cd09fd" } } // Add or update the userId field
+  );
 
+  console.log(`${result.modifiedCount} documents were updated.`);
+};
 
 module.exports = {
   getText,
@@ -259,5 +268,6 @@ module.exports = {
   getDiffBetweenParentAndChild,
   buildHierarchyTree,
   mergeToParent,
-  fetchDocumentStatistics
+  fetchDocumentStatistics,
+  updateSchema,
 };
