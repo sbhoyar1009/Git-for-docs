@@ -196,3 +196,10 @@
 .ant-form-item {
   margin-bottom: 15px;
 }
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}

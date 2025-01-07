@@ -4,7 +4,7 @@ const connectDB = require("./config/db");
 const textRoutes = require("./routes/text");
 const userRoutes = require("./routes/user");
 const versionRoutes = require("./routes/version");
-const { fetchDocumentStatistics } = require("./controllers/textController");
+const paymentRoutes = require("./routes/payment");
 const { protect } = require("./middleware/auth");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -19,8 +19,9 @@ connectDB();
 
 // Routes
 app.use("/api/user", userRoutes);
-app.use("/api/text",protect, textRoutes);
-app.use("/api/version", protect,versionRoutes);
+app.use("/api/text", textRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/version", protect, versionRoutes);
 // Start the server
 
 app.listen(5001, () => {

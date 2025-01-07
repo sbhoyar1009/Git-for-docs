@@ -1,5 +1,6 @@
 import React from "react";
 import { Form, Input, Button, Typography, message } from "antd";
+import { DoubleRightOutlined } from "@ant-design/icons";
 const { Title } = Typography;
 
 export default function HomeLeftPanel() {
@@ -9,11 +10,16 @@ export default function HomeLeftPanel() {
         Welcome to Our App
       </Title>
       <ul className="features-list">
-        <li>✔️ Feature 1</li>
-        <li>✔️ Feature 2</li>
-        <li>✔️ Feature 3</li>
-        <li>✔️ Feature 4</li>
-        <li>✔️ Feature 5</li>
+        <li>
+          <DoubleRightOutlined /> <strong>Version Control : </strong>
+          Track all changes and create checkpoints for documents, allowing users
+          to view, compare, and roll back to previous versions with ease
+        </li>
+        <li>
+          <DoubleRightOutlined /> <strong>Secure Payment Integration: </strong>
+          Track all changes and create checkpoints for documents, allowing users
+          to view, compare, and roll back to previous versions with ease
+        </li>
       </ul>
     </div>
   );

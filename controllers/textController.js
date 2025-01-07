@@ -28,6 +28,7 @@ const getAllTexts = async (req, res) => {
 
 // Controller to get a document by its slug
 const getTextBySlug = async (req, res) => {
+  console.log("Here")
   const { slug } = req.params;
   try {
     const text = await Text.findOne({ slug });
@@ -238,6 +239,7 @@ const mergeToParent = async (req, res) => {
 };
 
 const fetchDocumentStatistics = async (req, res) => {
+  console.log("Called")
   const docId = req.params.id;
   try {
     const stats = await Text.getDocumentStatistics(docId);

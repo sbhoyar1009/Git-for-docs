@@ -14,8 +14,6 @@ API.interceptors.request.use((req) => {
 
 export default API;
 
-
-
 export const registerUser = async (username, password) => {
   const response = await axios.post(`${apiUrl}/register`, {
     username,
@@ -25,12 +23,12 @@ export const registerUser = async (username, password) => {
 };
 
 export const login = async (username, password) => {
-    // console.log("API", username, password);
-    // const response = await axios.post(`${apiUrl}/login`, {
-    //   username,
-    //   password,
-    // });
-    // return response.data;
+  // console.log("API", username, password);
+  // const response = await axios.post(`${apiUrl}/login`, {
+  //   username,
+  //   password,
+  // });
+  // return response.data;
   try {
     const response = await API.post("/login", { username, password });
     localStorage.setItem("token", response.data.token); // Save token
@@ -38,5 +36,9 @@ export const login = async (username, password) => {
   } catch (error) {
     // message.error("Login failed!");
   }
-  };
-  
+};
+
+export const getUserData = async (userId) => {
+  const response = await API.get(`/${userId}`);
+  return response.data;
+};

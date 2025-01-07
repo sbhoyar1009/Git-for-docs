@@ -8,6 +8,8 @@ import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Register from './components/Register';
 import VersionTable from './components/VersionTable';
+import Payment from './components/Payment';
+import Profile from './components/Profile';
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
         <Route path="/document/:slug" element={<DocumentDetail />} />
         <Route path="/document/:id/versions" element={<VersionTable />} />
         <Route path="/document/tree" element={<DocumentTreeView />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

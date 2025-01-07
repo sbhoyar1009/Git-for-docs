@@ -94,5 +94,6 @@ export const mergeToParent = async (slug) => {
 
 export const getDocumentStatistics = async (id) => {
   const response = await API.get(`/statistics/${id}`);
+  console.log("Response is ",response)
   return response.data.stats;
 };

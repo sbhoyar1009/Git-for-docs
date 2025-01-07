@@ -17,9 +17,12 @@ const {
 const router = express.Router();
 // router.post("/update/schema",updateSchema);
 // Route to get all documents
+
 router.get("/:userId", getAllTexts);
 router.get("/document/tree",buildHierarchyTree)
 // Route to get a specific document by its slug
+
+router.get("/statistics/:id",fetchDocumentStatistics)
 router.get("/:userId/:slug", getTextBySlug);
 
 // Route to update a specific document by its slug
@@ -35,8 +38,6 @@ router.post("/merge/:slug",mergeToParent)
 router.get("/:slug/differences", getDiffBetweenParentAndChild);
 
 router.get("/documents/:slug/parent-content", getParentContent);
-router.get("/statistics/:id",fetchDocumentStatistics)
-
 
 
 

@@ -13,8 +13,6 @@ const DocumentList = () => {
   const userId = useSelector((state) => state.user.userId);
 
   const handleViewDocument = (id) => {
-    // Navigate to the document viewer page or handle logic
-    // console.log("View document with ID:", id);
     navigate(`/document/${id}`);
   };
 
