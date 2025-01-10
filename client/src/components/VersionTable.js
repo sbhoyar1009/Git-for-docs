@@ -3,10 +3,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { fetchAllTexts } from "../api/textApi";
 import NewDocumentButton from "./NewDocumentButton";
 import Navbar from "./Navbar";
-import { Button, DatePicker, Table } from "antd";
+import { Button, DatePicker, message, Table } from "antd";
 import DocumentStats from "./DocumentStats";
 import { useSelector } from "react-redux";
-import { fetchAllVersionsOfDocument } from "../api/versionApi";
+import { fetchAllVersionsOfDocument, rollbackToOldVersion } from "../api/versionApi";
 import Modal from "antd/es/modal/Modal";
 import { RollbackOutlined } from "@ant-design/icons";
 
@@ -24,7 +24,10 @@ const HtmlContentModal = ({ visible, title, htmlContent, onClose }) => {
       width={800} // Optional: Set custom width
     >
       {/* Render the HTML content */}
-      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+      <div
+        style={{ border: "solid", borderRadius: "10px", padding: "0.5rem" }}
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+      />
     </Modal>
   );
 };
@@ -32,14 +35,7 @@ const HtmlContentModal = ({ visible, title, htmlContent, onClose }) => {
 const VersionTable = () => {
   const [documents, setDocuments] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const htmlContent = `
-    <h2>Document Title</h2>
-    <p>This is a paragraph with <strong>bold text</strong> and <em>italicized text</em>.</p>
-    <ul>
-      <li>List item 1</li>
-      <li>List item 2</li>
-    </ul>
-  `;
+
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
@@ -50,8 +46,18 @@ const VersionTable = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const userId = useSelector((state) => state.user.userId);
-  const documentID = location.pathname.split('/')[2]
+  const documentID = location.pathname.split("/")[2];
 
+  const handleRollback = async(versionNo) => {
+    try{
+const response =  await rollbackToOldVersion(documentID,versionNo)
+message.success(response)
+    }
+    catch{
+      message.error( "An error occurred during rollback.");
+    }
+     
+  };
   useEffect(() => {
     const getDocuments = async () => {
       try {
@@ -99,7 +105,7 @@ const VersionTable = () => {
       title: "Rollback to this version",
       key: "action",
       render: (_, record) => (
-        <Button onClick={handleOpenModal}>
+        <Button onClick={()=>handleRollback(record.version)}>
           <RollbackOutlined />
           Rollback Content
         </Button>

@@ -25,3 +25,9 @@ export const fetchAllVersionsOfDocument = async (documentId) => {
   const response = await API.get(`/${documentId}`);
   return response.data;
 };
+
+export const rollbackToOldVersion = async (documentId,versionNo) => {
+  const response = await API.put(`/rollback/${documentId}/${versionNo}`);
+  return (response.data.message)
+};
+

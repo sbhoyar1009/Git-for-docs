@@ -21,6 +21,8 @@ import {
 } from "@ant-design/icons";
 import CreateCheckpoint from "./CreateCheckpoint";
 import { useSelector } from "react-redux";
+import ExportPDF from "./ExportPDF";
+import ExportToDocx from "./ExportToDocx";
 
 const { TextArea } = Input;
 
@@ -146,9 +148,7 @@ const DocumentDetail = () => {
     <div>
       {document ? (
         <>
-          <h2>Edit Document</h2>
-          <h5>Current Version {document.latestVersion?document.latestVersion : 1}</h5>
-          <Button onClick={handlePreviousVersions}>View Previous Versions</Button>
+        
           <div style={{ margin: "1rem" }}>
             <TextArea
               placeholder="Autosize height based on content lines"
@@ -157,7 +157,9 @@ const DocumentDetail = () => {
               autoSize
               style={{ padding: "1rem" }}
             />
+            <>              <Button onClick={handlePreviousVersions} style={{"margin":"10px"}}>View Previous Versions</Button>
             <TextEditor text={content} onChange={setContent} />
+            </>
 
             <div
               style={{
@@ -167,6 +169,7 @@ const DocumentDetail = () => {
             >
               <SaveButton onClick={handleSaveText} isSaving={isSaving} />
               <BranchButton slug={slug} />
+              <ExportToDocx htmlContent={document.content}/>
               {documentID && <CreateCheckpoint id={documentID} content={content} />}
               {document?.parent && (
                 <>
