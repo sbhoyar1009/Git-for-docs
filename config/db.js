@@ -1,14 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const logger = require("../logger/logger");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27017/textEditorDB', { 
-      useNewUrlParser: true, 
-      useUnifiedTopology: true 
+    await mongoose.connect("mongodb://localhost:27017/textEditorDB", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
-    console.log('Connected to MongoDB');
+    logger.info("Server connected to MongoDB successfully");
   } catch (err) {
-    console.error('MongoDB connection failed:', err);
+    logger.error("MongoDB connection failed:", err);
     process.exit(1);
   }
 };

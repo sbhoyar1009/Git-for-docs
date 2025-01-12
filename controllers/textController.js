@@ -1,16 +1,32 @@
 const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
+const logger = require("../logger/logger")
 
 // Controller to get the current text content
 const getText = async (req, res) => {
   try {
     const text = await Text.findOne();
     if (!text) {
+      logger.warn("Document not found", {
+        userId: req.userId,
+        timestamp: new Date(),
+      });
       return res.status(404).json({ message: "No text found" });
     }
+    logger.info("Text fetched successfully", {
+      message: "Text fetched",
+      textId: text._id,
+      userId: req.userId,
+      timestamp: new Date(),
+    });
     res.json(text);
   } catch (err) {
+    logger.error("Failed to fetch text", {
+      error: err.message,
+      userId: req.userId,
+      timestamp: new Date(),
+    });
     res.status(500).json({ message: "Failed to fetch text" });
   }
 };
@@ -20,45 +36,82 @@ const getAllTexts = async (req, res) => {
   const userID = req.params.userId;
   try {
     const texts = await Text.find({ userId: userID });
+    logger.info("All texts fetched successfully", {
+      userId: userID,
+      totalCount: texts.length,
+      timestamp: new Date(),
+    });
     res.json(texts);
   } catch (err) {
+    logger.error("Failed to fetch documents", {
+      error: err.message,
+      userId: userID,
+      timestamp: new Date(),
+    });
     res.status(500).json({ message: "Failed to fetch documents" });
   }
 };
 
 // Controller to get a document by its slug
 const getTextBySlug = async (req, res) => {
-  console.log("Here")
   const { slug } = req.params;
   try {
     const text = await Text.findOne({ slug });
     if (!text) {
+      logger.warn("Document not found for slug", {
+        message: "Document not found",
+        slug,
+        timestamp: new Date(),
+      });
       return res.status(404).json({ message: "Document not found" });
     }
+    logger.info("Document fetched successfully by slug", {
+      message: "Document fetched",
+      slug,
+      textId: text._id,
+      timestamp: new Date(),
+    });
     res.json(text);
   } catch (err) {
-    console.log(err);
+    logger.error("Failed to fetch document by slug", {
+      error: err.message,
+      slug,
+      timestamp: new Date(),
+    });
     res.status(500).json({ message: "Failed to fetch document" });
   }
 };
 
+// Save text content
 const saveText = async (req, res) => {
   try {
     const { title, content, userId } = req.body;
     const newText = new Text({
       title,
-      content, // content will be the HTML from Quill editor
+      content,
       userId,
     });
     await newText.save();
+    logger.info("New text saved successfully", {
+      message: "Document saved",
+      textId: newText._id,
+      userId: newText.userId,
+      timestamp: new Date(),
+    });
     res.status(201).json(newText);
   } catch (error) {
+    logger.error("Error saving document", {
+      error: error.message,
+      userId: req.body.userId,
+      timestamp: new Date(),
+    });
     res
       .status(500)
       .json({ message: "Error saving document", error: error.message });
   }
 };
 
+// Update text by slug
 const updateTextBySlug = async (req, res) => {
   const { slug } = req.params;
   const { title, content } = req.body;
@@ -66,25 +119,45 @@ const updateTextBySlug = async (req, res) => {
   try {
     const text = await Text.findOne({ slug });
     if (!text) {
+      logger.warn("Document not found for update", {
+        message: "Document not found",
+        slug,
+        timestamp: new Date(),
+      });
       return res.status(404).json({ message: "Document not found" });
     }
 
     text.title = title;
     text.content = content;
     await text.save();
-
+    logger.info("Text updated successfully", {
+      message: "Document updated",
+      textId: text._id,
+      slug,
+      timestamp: new Date(),
+    });
     res.status(200).json({ message: "Text updated successfully" });
   } catch (err) {
+    logger.error("Failed to update text", {
+      error: err.message,
+      slug,
+      timestamp: new Date(),
+    });
     res.status(500).json({ message: "Failed to update text" });
   }
 };
 
-// Controller to create a branched document
+// Branch a document
 const branchDocument = async (req, res) => {
   const { slug } = req.params;
   try {
     const parentDoc = await Text.findOne({ slug });
     if (!parentDoc) {
+      logger.warn("Parent document not found for branching", {
+        message: "Parent document not found",
+        slug,
+        timestamp: new Date(),
+      });
       return res.status(404).json({ message: "Parent document not found" });
     }
 
@@ -95,65 +168,81 @@ const branchDocument = async (req, res) => {
     });
 
     await branchedDoc.save();
+    logger.info("Branch created successfully", {
+      parentDocId: parentDoc._id,
+      branchedDocId: branchedDoc._id,
+      slug,
+      timestamp: new Date(),
+    });
     res
       .status(200)
       .json({ message: "Branch created successfully", branchedDoc });
   } catch (err) {
+    logger.error("Failed to create branch", {
+      error: err.message,
+      slug,
+      timestamp: new Date(),
+    });
     res
       .status(500)
       .json({ message: "Failed to create branch", error: err.message });
   }
 };
-const splitIntoParagraphs = (text) => {
-  return text.split("\n").filter((para) => para.trim() !== "");
-};
 
-function parseContent(content) {
-  // Using jsdom to simulate DOMParser
-  const dom = new JSDOM(content);
-  const doc = dom.window.document;
-  const paragraphs = Array.from(doc.querySelectorAll("p"));
-  return paragraphs.map((p) => p.innerHTML.trim()); // Extract inner HTML of each paragraph
-}
-
-// Modified endpoint to return paragraph-level differences
+// Fetch differences between parent and child documents
 const getDiffBetweenParentAndChild = async (req, res) => {
   const { slug } = req.params;
   try {
     const childDoc = await Text.findOne({ slug }).populate("parent");
     if (!childDoc || !childDoc.parent) {
+      logger.warn("Parent or child document not found", {
+        message: "Parent or child document not found",
+        slug,
+        timestamp: new Date(),
+      });
       return res
         .status(404)
         .json({ message: "Parent or child document not found" });
     }
 
     const parentDoc = await Text.findById(childDoc.parent);
+    const parentContent = parentDoc.content;
+    const childContent = childDoc.content;
 
-    const parentParagraphs = parseContent(parentDoc.content);
-    const childParagraphs = parseContent(childDoc.content);
-    console.log(parentParagraphs);
-    // Diff paragraphs
-    const diffResult = parentParagraphs
-      .map((parentPara, index) => {
-        const childPara = childParagraphs[index] || ""; // In case child content has less paragraphs
+    logger.info("Differences fetched successfully", {
+      parentDocId: parentDoc._id,
+      childDocId: childDoc._id,
+      slug,
+      timestamp: new Date(),
+    });
 
-        if (parentPara !== childPara) {
-          return {
-            index,
-            parent: parentPara,
-            child: childPara,
-            difference: `Changed from: "${parentPara}" to: "${childPara}"`,
-          };
-        }
-        return null;
-      })
-      .filter((diff) => diff !== null);
-
-    res.status(200).json({ diffResult });
+    res.status(200).json({ parentContent, childContent });
   } catch (err) {
+    logger.error("Failed to fetch differences", {
+      error: err.message,
+      slug,
+      timestamp: new Date(),
+    });
     res
       .status(500)
       .json({ message: "Failed to fetch differences", error: err.message });
+  }
+};
+
+// Build document hierarchy tree
+const buildHierarchyTree = async (req, res) => {
+  try {
+    const tree = await buildTree(); // Start from root (null)
+    logger.info("Document tree built successfully", {
+      timestamp: new Date(),
+    });
+    res.json(tree);
+  } catch (error) {
+    logger.error("Failed to fetch document tree", {
+      error: error.message,
+      timestamp: new Date(),
+    });
+    res.status(500).json({ message: "Failed to fetch document tree" });
   }
 };
 
@@ -189,17 +278,6 @@ const buildTree = async (parentId = null) => {
   }
 
   return tree;
-};
-
-const buildHierarchyTree = async (req, res) => {
-  console.log("hitted");
-  try {
-    const tree = await buildTree(); // Start building from the root (parent = null)
-    res.json(tree);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch document tree" });
-  }
 };
 
 const mergeToParent = async (req, res) => {
@@ -239,7 +317,7 @@ const mergeToParent = async (req, res) => {
 };
 
 const fetchDocumentStatistics = async (req, res) => {
-  console.log("Called")
+  console.log("Called");
   const docId = req.params.id;
   try {
     const stats = await Text.getDocumentStatistics(docId);
