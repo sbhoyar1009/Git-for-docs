@@ -2,13 +2,13 @@ const bcrypt = require("bcryptjs");
 const bodyParser = require("body-parser");
 const { generateToken } = require("../utils/jwt");
 const User = require("../models/User");
-const logger = require("../logger/logger");
+const {createUserLogger,mainLogger} = require("../logger/logger");
 
 const registerUser = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    logger.warn("Validation failed: All fields are required");
+    mainLogger.warn("Validation failed: All fields are required");
     return res
       .status(400)
       .json({
@@ -18,16 +18,20 @@ const registerUser = async (req, res) => {
   }
 
   try {
-    logger.info("Registering new user", { username });
+    mainLogger.info("Registering new user", { username });
 
     const hashedPassword = bcrypt.hashSync(password, 10);
     const newUser = new User({ username, password: hashedPassword });
 
     await newUser.save();
-    logger.info("User registered successfully", { username });
+
+    // User-specific logging
+    const userLogger = createUserLogger(newUser._id);
+    userLogger.info("User registered successfully", { username });
+
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    logger.error("Error registering user", { username, error: error.message });
+    mainLogger.error("Error registering user", { username, error: error.message });
 
     if (error.code === 11000) {
       return res
@@ -43,12 +47,12 @@ const registerUser = async (req, res) => {
   }
 };
 
-// User login
+// User Login
 const login = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    logger.warn("Validation failed: All fields are required");
+    mainLogger.warn("Validation failed: All fields are required");
     return res
       .status(400)
       .json({
@@ -58,11 +62,11 @@ const login = async (req, res) => {
   }
 
   try {
-    logger.info("Attempting user login", { username });
+    mainLogger.info("Attempting user login", { username });
 
     const user = await User.findOne({ username });
     if (!user) {
-      logger.warn("Invalid username or password", { username });
+      mainLogger.warn("Invalid username or password", { username });
       return res
         .status(400)
         .json({
@@ -73,7 +77,7 @@ const login = async (req, res) => {
 
     const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
-      logger.warn("Invalid username or password", { username });
+      mainLogger.warn("Invalid username or password", { username });
       return res
         .status(400)
         .json({
@@ -83,29 +87,33 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user._id);
-    logger.info("User logged in successfully", { username });
+
+    // User-specific logging
+    const userLogger = createUserLogger(user._id);
+    userLogger.info("User logged in successfully", { username });
+
     res.status(200).json({ token, user });
   } catch (error) {
-    logger.error("Error logging in user", { username, error: error.message });
+    mainLogger.error("Error logging in user", { username, error: error.message });
     res
       .status(500)
       .json({ errorCode: "SERVER_ERROR", message: "Error logging in" });
   }
 };
 
-// Update user profile
+// Update Profile
 const updateProfile = async (req, res) => {
   const { userId, fullName, phone, address, website } = req.body;
 
   if (!userId) {
-    logger.warn("Validation failed: User ID is required");
+    mainLogger.warn("Validation failed: User ID is required");
     return res
       .status(400)
       .json({ errorCode: "VALIDATION_ERROR", message: "User ID is required" });
   }
 
   try {
-    logger.info("Updating user profile", { userId });
+    mainLogger.info("Updating user profile", { userId });
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -114,16 +122,25 @@ const updateProfile = async (req, res) => {
     );
 
     if (!updatedUser) {
-      logger.warn("User not found", { userId });
+      mainLogger.warn("User not found", { userId });
       return res
         .status(404)
         .json({ errorCode: "USER_NOT_FOUND", message: "User not found" });
     }
 
-    logger.info("User profile updated successfully", { userId });
+    // User-specific logging
+    const userLogger = createUserLogger(userId);
+    userLogger.info("User profile updated successfully", {
+      userId,
+      fullName,
+      phone,
+      address,
+      website,
+    });
+
     res.status(200).json(updatedUser);
   } catch (error) {
-    logger.error("Error updating user profile", {
+    mainLogger.error("Error updating user profile", {
       userId,
       error: error.message,
     });
@@ -133,37 +150,41 @@ const updateProfile = async (req, res) => {
   }
 };
 
-// Find user by ID
+// Find User by ID
 const findUserById = async (req, res) => {
   const { userId } = req.params;
 
   if (!userId) {
-    logger.warn("Validation failed: User ID is required");
+    mainLogger.warn("Validation failed: User ID is required");
     return res
       .status(400)
       .json({ errorCode: "VALIDATION_ERROR", message: "User ID is required" });
   }
 
   try {
-    logger.info("Fetching user by ID", { userId });
+    mainLogger.info("Fetching user by ID", { userId });
 
     const user = await User.findById(userId);
     if (!user) {
-      logger.warn("User not found", { userId });
+      mainLogger.warn("User not found", { userId });
       return res
         .status(404)
         .json({ errorCode: "USER_NOT_FOUND", message: "User not found" });
     }
 
-    logger.info("User fetched successfully", { userId });
+    // User-specific logging
+    const userLogger = createUserLogger(userId);
+    userLogger.info("User fetched successfully", { userId });
+
     res.status(200).json(user);
   } catch (error) {
-    logger.error("Error fetching user by ID", { userId, error: error.message });
+    mainLogger.error("Error fetching user by ID", { userId, error: error.message });
     res
       .status(500)
       .json({ errorCode: "SERVER_ERROR", message: "Error fetching user" });
   }
 };
+
 
 module.exports = {
   registerUser,

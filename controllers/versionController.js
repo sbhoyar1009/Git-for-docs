@@ -1,6 +1,6 @@
 const Text = require("../models/Text");
 const Version = require("../models/Version");
-const logger = require("../logger/logger");
+const {createUserLogger,mainLogger} = require("../logger/logger");
 
 const createNewVersion = async (req, res) => {
   const documentID = req.params.documentID;
@@ -8,7 +8,7 @@ const createNewVersion = async (req, res) => {
   try {
     const doc = await Text.findById(documentID);
     if (!doc) {
-      logger.warn("Document not found", { documentID });
+      mainLogger.warn("Document not found", { documentID });
       return res
         .status(404)
         .json({
@@ -20,7 +20,7 @@ const createNewVersion = async (req, res) => {
     const latestVersion = doc.latestVersion;
     const { name, content } = req.body;
 
-    logger.info("Creating a new version", { documentID, latestVersion });
+    mainLogger.info("Creating a new version", { documentID, latestVersion });
 
     const newVersion = new Version({
       name,
@@ -35,13 +35,16 @@ const createNewVersion = async (req, res) => {
       latestVersion: latestVersion + 1,
     });
 
-    logger.info("New version created successfully", {
+    // User-specific logging
+    const userLogger = createUserLogger(req.user._id);  // Assuming user info is in `req.user`
+    userLogger.info("New version created successfully", {
       documentID,
       version: latestVersion + 1,
     });
+
     res.status(201).json(newVersion);
   } catch (error) {
-    logger.error("Error creating a new version", {
+    mainLogger.error("Error creating a new version", {
       documentID,
       error: error.message,
     });
@@ -56,11 +59,11 @@ const fetchAllVersionsOfDocument = async (req, res) => {
   const documentID = req.params.documentID;
 
   try {
-    logger.info("Fetching all versions of the document", { documentID });
+    mainLogger.info("Fetching all versions of the document", { documentID });
 
     const allVersions = await Version.find({ documentID });
     if (!allVersions || allVersions.length === 0) {
-      logger.warn("No versions found for document", { documentID });
+      mainLogger.warn("No versions found for document", { documentID });
       return res
         .status(404)
         .json({
@@ -69,13 +72,16 @@ const fetchAllVersionsOfDocument = async (req, res) => {
         });
     }
 
-    logger.info("Fetched all versions successfully", {
+    // User-specific logging
+    const userLogger = createUserLogger(req.user._id);  // Assuming user info is in `req.user`
+    userLogger.info("Fetched all versions successfully", {
       documentID,
       versionCount: allVersions.length,
     });
+
     res.status(200).json(allVersions);
   } catch (error) {
-    logger.error("Error fetching document versions", {
+    mainLogger.error("Error fetching document versions", {
       documentID,
       error: error.message,
     });
@@ -93,7 +99,7 @@ const rollbackToVersion = async (req, res) => {
   const { documentId, versionNo } = req.params;
 
   if (!documentId || !versionNo) {
-    logger.warn("Invalid request parameters for rollback", {
+    mainLogger.warn("Invalid request parameters for rollback", {
       documentId,
       versionNo,
     });
@@ -106,7 +112,7 @@ const rollbackToVersion = async (req, res) => {
   }
 
   try {
-    logger.info("Initiating rollback", { documentId, versionNo });
+    mainLogger.info("Initiating rollback", { documentId, versionNo });
 
     const versionToRollback = await Version.findOne({
       documentID: documentId,
@@ -114,7 +120,7 @@ const rollbackToVersion = async (req, res) => {
     });
 
     if (!versionToRollback) {
-      logger.warn("Version not found for rollback", { documentId, versionNo });
+      mainLogger.warn("Version not found for rollback", { documentId, versionNo });
       return res
         .status(404)
         .json({ errorCode: "VERSION_NOT_FOUND", message: "Version not found" });
@@ -127,7 +133,7 @@ const rollbackToVersion = async (req, res) => {
     );
 
     if (!updatedDocument) {
-      logger.warn("Document not found during rollback", { documentId });
+      mainLogger.warn("Document not found during rollback", { documentId });
       return res
         .status(404)
         .json({
@@ -136,13 +142,16 @@ const rollbackToVersion = async (req, res) => {
         });
     }
 
-    logger.info("Document rolled back successfully", { documentId, versionNo });
+    // User-specific logging
+    const userLogger = createUserLogger(req.user._id);  // Assuming user info is in `req.user`
+    userLogger.info("Document rolled back successfully", { documentId, versionNo });
+
     res.status(200).json({
       message: "Document successfully rolled back to the selected version",
       updatedDocument,
     });
   } catch (error) {
-    logger.error("Error during rollback", {
+    mainLogger.error("Error during rollback", {
       documentId,
       versionNo,
       error: error.message,
@@ -155,6 +164,7 @@ const rollbackToVersion = async (req, res) => {
       });
   }
 };
+
 module.exports = {
   createNewVersion,
   fetchAllVersionsOfDocument,

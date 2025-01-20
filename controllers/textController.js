@@ -1,83 +1,134 @@
 const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
-const logger = require("../logger/logger");
+const {createUserLogger,mainLogger} = require("../logger/logger");
 
 // Controller to get the current text content
 const getText = async (req, res) => {
   try {
     const text = await Text.findOne();
     if (!text) {
-      logger.warn("Document not found", {
+      mainLogger.warn("Document not found", {
         userId: req.userId,
         timestamp: new Date(),
       });
       return res.status(404).json({ message: "No text found" });
     }
-    logger.info("Text fetched successfully", {
+    mainLogger.info("Text fetched successfully", {
       message: "Text fetched",
       textId: text._id,
       userId: req.userId,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Text fetched successfully", {
+      textId: text._id,
+      userId: req.userId,
+      timestamp: new Date(),
+    });
+
     res.json(text);
   } catch (err) {
-    logger.error("Failed to fetch text", {
+    mainLogger.error("Failed to fetch text", {
       error: err.message,
       userId: req.userId,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to fetch text", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res.status(500).json({ message: "Failed to fetch text" });
   }
 };
 
-// Controller to get all documents
+// Get all texts for a user
 const getAllTexts = async (req, res) => {
   const userID = req.params.userId;
   try {
     const texts = await Text.find({ userId: userID });
-    logger.info("All texts fetched successfully", {
+    mainLogger.info("All texts fetched successfully", {
       userId: userID,
       totalCount: texts.length,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(userID);
+    userLogger.info("All texts fetched successfully", {
+      totalCount: texts.length,
+      timestamp: new Date(),
+    });
+
     res.json(texts);
   } catch (err) {
-    logger.error("Failed to fetch documents", {
+    mainLogger.error("Failed to fetch documents", {
       error: err.message,
       userId: userID,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(userID);
+    userLogger.error("Failed to fetch documents", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res.status(500).json({ message: "Failed to fetch documents" });
   }
 };
 
-// Controller to get a document by its slug
+// Get a text document by its slug
 const getTextBySlug = async (req, res) => {
   const { slug } = req.params;
   try {
     const text = await Text.findOne({ slug });
     if (!text) {
-      logger.warn("Document not found for slug", {
+      mainLogger.warn("Document not found for slug", {
         message: "Document not found",
         slug,
         timestamp: new Date(),
       });
       return res.status(404).json({ message: "Document not found" });
     }
-    logger.info("Document fetched successfully by slug", {
+
+    mainLogger.info("Document fetched successfully by slug", {
       message: "Document fetched",
       slug,
       textId: text._id,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Document fetched successfully by slug", {
+      slug,
+      textId: text._id,
+      timestamp: new Date(),
+    });
+
     res.json(text);
   } catch (err) {
-    logger.error("Failed to fetch document by slug", {
+    mainLogger.error("Failed to fetch document by slug", {
       error: err.message,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to fetch document by slug", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res.status(500).json({ message: "Failed to fetch document" });
   }
 };
@@ -92,19 +143,37 @@ const saveText = async (req, res) => {
       userId,
     });
     await newText.save();
-    logger.info("New text saved successfully", {
+
+    mainLogger.info("New text saved successfully", {
       message: "Document saved",
       textId: newText._id,
       userId: newText.userId,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(userId);
+    userLogger.info("New text saved successfully", {
+      textId: newText._id,
+      userId: newText.userId,
+      timestamp: new Date(),
+    });
+
     res.status(201).json(newText);
   } catch (error) {
-    logger.error("Error saving document", {
+    mainLogger.error("Error saving document", {
       error: error.message,
       userId: req.body.userId,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.body.userId);
+    userLogger.error("Error saving document", {
+      error: error.message,
+      timestamp: new Date(),
+    });
+
     res
       .status(500)
       .json({ message: "Error saving document", error: error.message });
@@ -119,7 +188,7 @@ const updateTextBySlug = async (req, res) => {
   try {
     const text = await Text.findOne({ slug });
     if (!text) {
-      logger.warn("Document not found for update", {
+      mainLogger.warn("Document not found for update", {
         message: "Document not found",
         slug,
         timestamp: new Date(),
@@ -130,19 +199,37 @@ const updateTextBySlug = async (req, res) => {
     text.title = title;
     text.content = content;
     await text.save();
-    logger.info("Text updated successfully", {
+
+    mainLogger.info("Text updated successfully", {
       message: "Document updated",
       textId: text._id,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Text updated successfully", {
+      textId: text._id,
+      slug,
+      timestamp: new Date(),
+    });
+
     res.status(200).json({ message: "Text updated successfully" });
   } catch (err) {
-    logger.error("Failed to update text", {
+    mainLogger.error("Failed to update text", {
       error: err.message,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to update text", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res.status(500).json({ message: "Failed to update text" });
   }
 };
@@ -153,7 +240,7 @@ const branchDocument = async (req, res) => {
   try {
     const parentDoc = await Text.findOne({ slug });
     if (!parentDoc) {
-      logger.warn("Parent document not found for branching", {
+      mainLogger.warn("Parent document not found for branching", {
         message: "Parent document not found",
         slug,
         timestamp: new Date(),
@@ -168,21 +255,40 @@ const branchDocument = async (req, res) => {
     });
 
     await branchedDoc.save();
-    logger.info("Branch created successfully", {
+
+    mainLogger.info("Branch created successfully", {
       parentDocId: parentDoc._id,
       branchedDocId: branchedDoc._id,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Branch created successfully", {
+      parentDocId: parentDoc._id,
+      branchedDocId: branchedDoc._id,
+      slug,
+      timestamp: new Date(),
+    });
+
     res
       .status(200)
       .json({ message: "Branch created successfully", branchedDoc });
   } catch (err) {
-    logger.error("Failed to create branch", {
+    mainLogger.error("Failed to create branch", {
       error: err.message,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to create branch", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res
       .status(500)
       .json({ message: "Failed to create branch", error: err.message });
@@ -195,7 +301,7 @@ const getDiffBetweenParentAndChild = async (req, res) => {
   try {
     const childDoc = await Text.findOne({ slug }).populate("parent");
     if (!childDoc || !childDoc.parent) {
-      logger.warn("Parent or child document not found", {
+      mainLogger.warn("Parent or child document not found", {
         message: "Parent or child document not found",
         slug,
         timestamp: new Date(),
@@ -209,7 +315,16 @@ const getDiffBetweenParentAndChild = async (req, res) => {
     const parentContent = parentDoc.content;
     const childContent = childDoc.content;
 
-    logger.info("Differences fetched successfully", {
+    mainLogger.info("Differences fetched successfully", {
+      parentDocId: parentDoc._id,
+      childDocId: childDoc._id,
+      slug,
+      timestamp: new Date(),
+    });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Differences fetched successfully", {
       parentDocId: parentDoc._id,
       childDocId: childDoc._id,
       slug,
@@ -218,11 +333,19 @@ const getDiffBetweenParentAndChild = async (req, res) => {
 
     res.status(200).json({ parentContent, childContent });
   } catch (err) {
-    logger.error("Failed to fetch differences", {
+    mainLogger.error("Failed to fetch differences", {
       error: err.message,
       slug,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to fetch differences", {
+      error: err.message,
+      timestamp: new Date(),
+    });
+
     res
       .status(500)
       .json({ message: "Failed to fetch differences", error: err.message });
@@ -233,15 +356,30 @@ const getDiffBetweenParentAndChild = async (req, res) => {
 const buildHierarchyTree = async (req, res) => {
   try {
     const tree = await buildTree(); // Start from root (null)
-    logger.info("Document tree built successfully", {
+    mainLogger.info("Document tree built successfully", {
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Document tree built successfully", {
+      timestamp: new Date(),
+    });
+
     res.json(tree);
   } catch (error) {
-    logger.error("Failed to fetch document tree", {
+    mainLogger.error("Failed to fetch document tree", {
       error: error.message,
       timestamp: new Date(),
     });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.error("Failed to fetch document tree", {
+      error: error.message,
+      timestamp: new Date(),
+    });
+
     res.status(500).json({ message: "Failed to fetch document tree" });
   }
 };
@@ -251,18 +389,24 @@ const getParentContent = async (req, res) => {
   const { slug } = req.params;
 
   try {
-    logger.info("Fetching parent content for document", { slug });
+    mainLogger.info("Fetching parent content for document", { slug });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Fetching parent content for document", { slug });
 
     const document = await Text.findOne({ slug }).populate("parent");
     if (!document) {
-      logger.warn("Document not found", { slug });
+      mainLogger.warn("Document not found", { slug });
+      userLogger.warn("Document not found", { slug });
       return res
         .status(404)
         .json({ errorCode: "DOC_NOT_FOUND", message: "Document not found" });
     }
 
     if (!document.parent) {
-      logger.warn("Parent document not found", { slug });
+      mainLogger.warn("Parent document not found", { slug });
+      userLogger.warn("Parent document not found", { slug });
       return res
         .status(404)
         .json({
@@ -271,10 +415,12 @@ const getParentContent = async (req, res) => {
         });
     }
 
-    logger.info("Parent content fetched successfully", { slug });
+    mainLogger.info("Parent content fetched successfully", { slug });
+    userLogger.info("Parent content fetched successfully", { slug });
     res.status(200).json({ parentContent: document.parent.content });
   } catch (err) {
-    logger.error("Error fetching parent content", { error: err.message, slug });
+    mainLogger.error("Error fetching parent content", { error: err.message, slug });
+    userLogger.error("Error fetching parent content", { error: err.message, slug });
     res
       .status(500)
       .json({
@@ -288,7 +434,11 @@ const getParentContent = async (req, res) => {
 // Build a tree structure of documents
 const buildTree = async (parentId = null) => {
   try {
-    logger.info("Building tree", { parentId });
+    mainLogger.info("Building tree", { parentId });
+    const userLogger = createUserLogger(parentId);  // Assuming parentId represents the user
+
+    userLogger.info("Building tree", { parentId });
+
     const documents = await Text.find({ parent: parentId }).lean();
     const tree = [];
 
@@ -302,10 +452,12 @@ const buildTree = async (parentId = null) => {
       });
     }
 
-    logger.info("Tree built successfully", { parentId });
+    mainLogger.info("Tree built successfully", { parentId });
+    userLogger.info("Tree built successfully", { parentId });
     return tree;
   } catch (error) {
-    logger.error("Error building tree", { parentId, error: error.message });
+    mainLogger.error("Error building tree", { parentId, error: error.message });
+    userLogger.error("Error building tree", { parentId, error: error.message });
     throw new Error("Error building document tree");
   }
 };
@@ -315,12 +467,17 @@ const mergeToParent = async (req, res) => {
   const { slug } = req.params;
 
   try {
-    logger.info("Merging document into parent", { slug });
+    mainLogger.info("Merging document into parent", { slug });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Merging document into parent", { slug });
 
     // Fetch the child document
     const childDocument = await Text.findOne({ slug });
     if (!childDocument) {
-      logger.warn("Child document not found", { slug });
+      mainLogger.warn("Child document not found", { slug });
+      userLogger.warn("Child document not found", { slug });
       return res
         .status(404)
         .json({
@@ -331,7 +488,8 @@ const mergeToParent = async (req, res) => {
 
     // Ensure it has a parent
     if (!childDocument.parent) {
-      logger.warn("No parent document to merge into", { slug });
+      mainLogger.warn("No parent document to merge into", { slug });
+      userLogger.warn("No parent document to merge into", { slug });
       return res
         .status(400)
         .json({
@@ -343,7 +501,10 @@ const mergeToParent = async (req, res) => {
     // Fetch the parent document
     const parentDocument = await Text.findById(childDocument.parent);
     if (!parentDocument) {
-      logger.warn("Parent document not found", {
+      mainLogger.warn("Parent document not found", {
+        parentId: childDocument.parent,
+      });
+      userLogger.warn("Parent document not found", {
         parentId: childDocument.parent,
       });
       return res
@@ -358,13 +519,18 @@ const mergeToParent = async (req, res) => {
     parentDocument.content = `${parentDocument.content}\n${childDocument.content}`;
     await parentDocument.save();
 
-    logger.info("Merged document content successfully", {
+    mainLogger.info("Merged document content successfully", {
+      childSlug: slug,
+      parentId: parentDocument._id,
+    });
+    userLogger.info("Merged document content successfully", {
       childSlug: slug,
       parentId: parentDocument._id,
     });
     res.json({ message: "Merged successfully.", parentDocument });
   } catch (error) {
-    logger.error("Error merging documents", { slug, error: error.message });
+    mainLogger.error("Error merging documents", { slug, error: error.message });
+    userLogger.error("Error merging documents", { slug, error: error.message });
     res
       .status(500)
       .json({
@@ -380,13 +546,23 @@ const fetchDocumentStatistics = async (req, res) => {
   const docId = req.params.id;
 
   try {
-    logger.info("Fetching document statistics", { docId });
+    mainLogger.info("Fetching document statistics", { docId });
+
+    // User-specific logging
+    const userLogger = createUserLogger(req.userId);
+    userLogger.info("Fetching document statistics", { docId });
+
     const stats = await Text.getDocumentStatistics(docId);
 
-    logger.info("Document statistics fetched successfully", { docId, stats });
+    mainLogger.info("Document statistics fetched successfully", { docId, stats });
+    userLogger.info("Document statistics fetched successfully", { docId, stats });
     res.json({ message: "Stats fetched", stats });
   } catch (error) {
-    logger.error("Error fetching document statistics", {
+    mainLogger.error("Error fetching document statistics", {
+      docId,
+      error: error.message,
+    });
+    userLogger.error("Error fetching document statistics", {
       docId,
       error: error.message,
     });
@@ -403,21 +579,25 @@ const fetchDocumentStatistics = async (req, res) => {
 // Update schema for all documents
 const updateSchema = async () => {
   try {
-    logger.info("Updating schema for all documents");
+    mainLogger.info("Updating schema for all documents");
+
+    // User-specific logging is not added here because the operation isn't linked to a specific user
 
     const result = await Text.updateMany(
       {}, // Match all documents
       { $set: { userId: "676b025fdf05a7b124cd09fd" } } // Add or update the userId field
     );
 
-    logger.info("Schema updated successfully", {
+    mainLogger.info("Schema updated successfully", {
       modifiedCount: result.modifiedCount,
     });
   } catch (error) {
-    logger.error("Error updating schema", { error: error.message });
+    mainLogger.error("Error updating schema", { error: error.message });
     throw new Error("Error updating schema");
   }
 };
+
+
 module.exports = {
   getText,
   saveText,

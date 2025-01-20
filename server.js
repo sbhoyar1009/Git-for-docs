@@ -9,7 +9,7 @@ const { protect } = require("./middleware/auth");
 const dotenv = require("dotenv");
 dotenv.config();
 const app = express();
-const logger = require("./logger/logger");
+const {mainLogger} = require("./logger/logger");
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -25,5 +25,5 @@ app.use("/api/version", protect, versionRoutes);
 // Start the server
 
 app.listen(5001, () => {
-  logger.info("Server is running on http://localhost:5001");
+  mainLogger.info("Server is running on http://localhost:5001");
 });

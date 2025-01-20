@@ -1,28 +1,46 @@
-const { createLogger, format, transports } = require('winston');
+const { createLogger, format, transports } = require("winston");
+const path = require("path");
+const fs = require("fs");
 
-// Define log formats
+// Ensure the logs directory exists
+const logsDir = path.join(__dirname, "user_logs");
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// Base log format
 const logFormat = format.combine(
-  format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), // Add a timestamp
-  format.printf(({ timestamp, level, message, stack }) => {
-    return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
+  format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  format.printf(({ timestamp, level, message, userId, ...meta }) => {
+    const metaString = Object.keys(meta).length ? JSON.stringify(meta) : "";
+    return `${timestamp} [${level.toUpperCase()}] [UserId: ${
+      userId || "GLOBAL"
+    }]: ${message} ${metaString}`;
   })
 );
 
-// Create the logger instance
-const logger = createLogger({
-  level: 'info', // Default log level
+// Create a function to dynamically create user-specific loggers
+const createUserLogger = (userId) => {
+  const userLogPath = path.join(logsDir, `${userId}.log`);
+
+  return createLogger({
+    level: "info",
+    format: logFormat,
+    transports: [
+      new transports.File({ filename: userLogPath }), // User-specific file
+      new transports.Console(), // Optionally log to console for debugging
+    ],
+  });
+};
+
+// Global logger for generic logs
+const mainLogger = createLogger({
+  level: "info",
   format: logFormat,
   transports: [
-    new transports.Console(), // Logs to console
-    new transports.File({ filename: 'logs/error.log', level: 'error' }), // Logs errors to a file
-    new transports.File({ filename: 'logs/combined.log' }) // Logs all messages to a file
+    new transports.Console(),
+    new transports.File({ filename: path.join(logsDir, "global.log") }),
   ],
-  exceptionHandlers: [
-    new transports.File({ filename: 'logs/exceptions.log' }) // Capture uncaught exceptions
-  ],
-  rejectionHandlers: [
-    new transports.File({ filename: 'logs/rejections.log' }) // Capture unhandled rejections
-  ]
 });
 
-module.exports = logger;
+module.exports = { createUserLogger, mainLogger };

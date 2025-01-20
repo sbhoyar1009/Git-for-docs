@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
-const logger = require("../logger/logger");
+const {mainLogger} = require("../logger/logger");
 
 const connectDB = async () => {
   try {
     await mongoose.connect("mongodb://localhost:27017/textEditorDB");
-    logger.info("Server connected to MongoDB successfully");
+    mainLogger.info("Server connected to MongoDB successfully");
   } catch (err) {
-    logger.error("MongoDB connection failed:", err);
+    mainLogger.error("MongoDB connection failed:", err);
     process.exit(1);
   }
 };
