@@ -1,7 +1,7 @@
 const Text = require("../models/Text");
 const { diffWords } = require("diff"); // Import the diff library
 const { JSDOM } = require("jsdom");
-const logger = require("../logger/logger")
+const logger = require("../logger/logger");
 
 // Controller to get the current text content
 const getText = async (req, res) => {
@@ -249,94 +249,175 @@ const buildHierarchyTree = async (req, res) => {
 // Fetch the parent content for a document
 const getParentContent = async (req, res) => {
   const { slug } = req.params;
+
   try {
-    const document = await Text.findOne({ slug }).populate("parent"); // Populate parent
-    if (!document || !document.parent) {
-      return res.status(404).json({ message: "Parent document not found" });
+    logger.info("Fetching parent content for document", { slug });
+
+    const document = await Text.findOne({ slug }).populate("parent");
+    if (!document) {
+      logger.warn("Document not found", { slug });
+      return res
+        .status(404)
+        .json({ errorCode: "DOC_NOT_FOUND", message: "Document not found" });
     }
 
+    if (!document.parent) {
+      logger.warn("Parent document not found", { slug });
+      return res
+        .status(404)
+        .json({
+          errorCode: "PARENT_NOT_FOUND",
+          message: "Parent document not found",
+        });
+    }
+
+    logger.info("Parent content fetched successfully", { slug });
     res.status(200).json({ parentContent: document.parent.content });
   } catch (err) {
+    logger.error("Error fetching parent content", { error: err.message, slug });
     res
       .status(500)
-      .json({ message: "Error fetching parent content", error: err.message });
+      .json({
+        errorCode: "SERVER_ERROR",
+        message: "Error fetching parent content",
+        error: err.message,
+      });
   }
 };
 
+// Build a tree structure of documents
 const buildTree = async (parentId = null) => {
-  const documents = await Text.find({ parent: parentId }).lean();
-  const tree = [];
+  try {
+    logger.info("Building tree", { parentId });
+    const documents = await Text.find({ parent: parentId }).lean();
+    const tree = [];
 
-  for (const doc of documents) {
-    const children = await buildTree(doc._id); // Recursively fetch children
-    tree.push({
-      id: doc._id,
-      name: doc.title,
-      slug: doc.slug,
-      children,
-    });
+    for (const doc of documents) {
+      const children = await buildTree(doc._id); // Recursively fetch children
+      tree.push({
+        id: doc._id,
+        name: doc.title,
+        slug: doc.slug,
+        children,
+      });
+    }
+
+    logger.info("Tree built successfully", { parentId });
+    return tree;
+  } catch (error) {
+    logger.error("Error building tree", { parentId, error: error.message });
+    throw new Error("Error building document tree");
   }
-
-  return tree;
 };
 
+// Merge child document content into the parent
 const mergeToParent = async (req, res) => {
   const { slug } = req.params;
 
   try {
+    logger.info("Merging document into parent", { slug });
+
     // Fetch the child document
     const childDocument = await Text.findOne({ slug });
     if (!childDocument) {
-      return res.status(404).json({ message: "Child document not found." });
+      logger.warn("Child document not found", { slug });
+      return res
+        .status(404)
+        .json({
+          errorCode: "CHILD_DOC_NOT_FOUND",
+          message: "Child document not found.",
+        });
     }
 
     // Ensure it has a parent
     if (!childDocument.parent) {
+      logger.warn("No parent document to merge into", { slug });
       return res
         .status(400)
-        .json({ message: "No parent document available to merge into." });
+        .json({
+          errorCode: "NO_PARENT",
+          message: "No parent document available to merge into.",
+        });
     }
 
     // Fetch the parent document
     const parentDocument = await Text.findById(childDocument.parent);
     if (!parentDocument) {
-      return res.status(404).json({ message: "Parent document not found." });
+      logger.warn("Parent document not found", {
+        parentId: childDocument.parent,
+      });
+      return res
+        .status(404)
+        .json({
+          errorCode: "PARENT_DOC_NOT_FOUND",
+          message: "Parent document not found.",
+        });
     }
 
-    // Merge the content (for now, we'll simply append the child content to the parent)
-    // You can use a diff algorithm or other logic to merge intelligently
-    parentDocument.content = childDocument.content;
+    // Merge content
+    parentDocument.content = `${parentDocument.content}\n${childDocument.content}`;
     await parentDocument.save();
 
+    logger.info("Merged document content successfully", {
+      childSlug: slug,
+      parentId: parentDocument._id,
+    });
     res.json({ message: "Merged successfully.", parentDocument });
   } catch (error) {
+    logger.error("Error merging documents", { slug, error: error.message });
     res
       .status(500)
-      .json({ message: "Error merging documents.", error: error.message });
+      .json({
+        errorCode: "MERGE_ERROR",
+        message: "Error merging documents.",
+        error: error.message,
+      });
   }
 };
 
+// Fetch document statistics
 const fetchDocumentStatistics = async (req, res) => {
-  console.log("Called");
   const docId = req.params.id;
+
   try {
+    logger.info("Fetching document statistics", { docId });
     const stats = await Text.getDocumentStatistics(docId);
-    console.log("Document Statistics:", stats);
+
+    logger.info("Document statistics fetched successfully", { docId, stats });
     res.json({ message: "Stats fetched", stats });
   } catch (error) {
-    console.error("Error fetching statistics:", error.message);
+    logger.error("Error fetching document statistics", {
+      docId,
+      error: error.message,
+    });
+    res
+      .status(500)
+      .json({
+        errorCode: "STATS_ERROR",
+        message: "Error fetching document statistics",
+        error: error.message,
+      });
   }
 };
 
+// Update schema for all documents
 const updateSchema = async () => {
-  const result = await Text.updateMany(
-    {}, // Match all documents
-    { $set: { userId: "676b025fdf05a7b124cd09fd" } } // Add or update the userId field
-  );
+  try {
+    logger.info("Updating schema for all documents");
 
-  console.log(`${result.modifiedCount} documents were updated.`);
+    const result = await Text.updateMany(
+      {}, // Match all documents
+      { $set: { userId: "676b025fdf05a7b124cd09fd" } } // Add or update the userId field
+    );
+
+    logger.info("Schema updated successfully", {
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    logger.error("Error updating schema", { error: error.message });
+    throw new Error("Error updating schema");
+  }
 };
-
 module.exports = {
   getText,
   saveText,

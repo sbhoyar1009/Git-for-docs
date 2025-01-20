@@ -3,10 +3,7 @@ const logger = require("../logger/logger");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/textEditorDB", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect("mongodb://localhost:27017/textEditorDB");
     logger.info("Server connected to MongoDB successfully");
   } catch (err) {
     logger.error("MongoDB connection failed:", err);
